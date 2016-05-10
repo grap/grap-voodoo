@@ -78,7 +78,7 @@ def run(session, logger):
         WHERE ai.company_id != ppl.company_id);""")
 
     companies = company_obj.browse(
-        session.cr, uid, company_obj.search(session.cr, uid, [('id', '=', 16)]))
+        session.cr, uid, company_obj.search(session.cr, uid, []))
 
     for company in companies:
         print "==============================================================="
@@ -96,8 +96,6 @@ def run(session, logger):
             
             count = 0
             for invoice in bad_invoices:
-                if invoice.id == 29975:
-                    import pdb; pdb.set_trace()
                 count += 1
                 new_pricelist_id = invoice_obj.get_partner_pricelist_id(
                     session.cr, uid, [invoice.id], '', '')[invoice.id]
@@ -112,8 +110,3 @@ def run(session, logger):
     install_modules(session, ['pos_sale_reporting'])
 
     update_modules(session)
-
-
-###    # STEP2. Install new modules (Report Webkit)
-###    session.install_modules(['sale_order_webkit', 'report_custom_filename'])
-###    # TODO FIX header
