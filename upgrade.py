@@ -5,7 +5,7 @@ The purpose is both to cover the most common use-case (updating all modules)
 and to provide an example of how this works.
 """
 
-from anybox.recipe.odoo.runtime.session import OpenERPVersion
+from anybox.recipe.openerp.runtime.session import OpenERPVersion
 import os, imp
 
 
@@ -20,13 +20,10 @@ def run(session, logger):
     files = [f.replace('.py', '') for f in os.listdir('upgrade')
              if f[-3:] == '.py']
     files.sort(key=OpenERPVersion)
-    if 'current' in files:
-        files.remove('current')
-        files.append('current')
-        for version in files:
-            if session.db_version < version or version == 'current':
-                script = imp.load_source('script', 'upgrade/%s.py' % version)
-                script.run(session, logger)
-                if version != 'current':
-                    session.db_version = version
-                session.cr.commit()
+    for version in files:
+        if session.db_version < version or version == 'current':
+            script = imp.load_source('script', 'upgrade/%s.py' % version)
+            script.run(session, logger)
+            if version != 'current':
+                session.db_version = version
+            session.cr.commit()
