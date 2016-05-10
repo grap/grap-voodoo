@@ -36,6 +36,8 @@ def uninstall_modules(session, modules):
 
 
 def run(session, logger):
+    update_modules(session, ['sale_food'])
+
     update_module_list(session)
 
     company_obj = session._registry['res.company']
@@ -103,13 +105,13 @@ def run(session, logger):
                     count, len(bad_invoices), pricelists_lst[invoice.partner_pricelist_id.id], pricelists_lst[new_pricelist_id])
                 invoice_obj.write(session.cr, uid, [invoice.id], {'pricelist_id': new_pricelist_id})
 
-#    # Uninstall obsolete module
-#    uninstall_modules(session, ['pos_sale_reporting'])
+    # Uninstall obsolete module
+    uninstall_modules(session, ['pos_sale_reporting'])
 
-#    # Reinstall correctly pos_sale_reporting
-#    install_modules(session, ['pos_sale_reporting'])
+    # Reinstall correctly pos_sale_reporting
+    install_modules(session, ['pos_sale_reporting'])
 
-#    update_modules(session)
+    update_modules(session)
 
 
 ###    # STEP2. Install new modules (Report Webkit)
