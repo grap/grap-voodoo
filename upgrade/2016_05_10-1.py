@@ -54,8 +54,8 @@ def run(session, logger):
         pricelists_lst[pricelist.id] = "%s - %s" % (
             pricelist.name, pricelist.company_id.code)
 
-#    # STEP1. Install new modules (Pricelist on Account)
-#    install_modules(session, ['invoice_pricelist'])
+    # STEP1. Install new modules (Pricelist on Account)
+    install_modules(session, ['invoice_pricelist'])
 
     # 1.1 Recover correct data from old module
     execute(session, """
