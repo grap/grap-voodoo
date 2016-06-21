@@ -44,7 +44,12 @@ def run(session, logger):
     SET company_id = 3 where company_id is Null;""")
 
     # Update Specific Module
-    update_modules(session, ['account_fiscal_company'])
+    update_modules(session, [
+        'account_fiscal_company',
+        'product_simple_pricelist',
+        'sale_food',
+        'account_export_ebp',
+    ])
 
     # TODO Update all (for production only)
 #    update_modules(session)
