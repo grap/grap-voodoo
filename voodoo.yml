@@ -2,17 +2,3 @@ voodoo:
   shared_eggs: True
   shared_odoo: 'odoo7'
   used_odoo_repo: 'oca'
-odoo:
-  image: akretion/voodoo
-  environment:
-    - POSTGRESQL_DATA=/workspace/.db
-    - POSTGRESQL_DB=db
-  volumes:
-    - .:/workspace
-    - ../backup:/workspace/backup
-    - ../ak:/workspace/cmd-ak
-  ports:
-    - "7169:8069"
-    - "7172:8072"
-    - "7144:4444"
-    - "7132:5432"
