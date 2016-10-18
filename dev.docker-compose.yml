@@ -22,10 +22,8 @@ services:
       service: odoo
     links:
     - db
-    - mailcatcher
     ports:
     - 7069:8069 # Odoo
-    - 7044:4444
     - 7032:5432 # PostgreSQL
     volumes:
     - .:/workspace
