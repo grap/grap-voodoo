@@ -1,9 +1,6 @@
 # sphinx build directories
 _build/
 
-
-buildout.cfg
-
 # dotfiles
 *.py.1
 .*
