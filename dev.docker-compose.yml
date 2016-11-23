@@ -29,4 +29,5 @@ services:
     - .:/workspace
     - .db/socket/:/var/run/postgresql/
     - /home/sylvain/.voodoo/shared:/home/sylvain/.voodoo/shared
+    - /pro/grap/backup/:/workspace/backup/
 version: '2'
