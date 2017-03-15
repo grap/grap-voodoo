@@ -30,4 +30,15 @@ services:
     - .db/socket/:/var/run/postgresql/
     - /home/sylvain/.voodoo/shared:/home/sylvain/.voodoo/shared
     - /pro/grap/backup/:/workspace/backup/
+  pgadmin:
+    image: fenglc/pgadmin4
+    links:
+    - db
+    volumes:
+    - pgadmin:/root/.pgadmin
+    ports:
+    - 7050:5050
 version: '2'
+volumes:
+    pgadmin:
+        external: false
