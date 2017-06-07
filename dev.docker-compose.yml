@@ -1,44 +1,30 @@
+networks:
+  default:
+    external:
+      name: vd
 services:
   db:
     environment:
     - POSTGRES_USER=odoo
     - POSTGRES_DB=db
-    - USERMAP_UID=1000
-    - USERMAP_GID=1000
     image: akretion/voodoo-postgresql
     volumes:
     - .db/data/:/var/lib/postgresql/data
     - .db/socket/:/var/run/postgresql/
-  mailcatcher:
-    image: akretion/lightweight-mailcatcher
-    ports:
-    - 1280:1080
-    - 1225:1025
   odoo:
     environment:
     - PYTHONDONTWRITEBYTECODE=True
-    extends:
-      file: docker-compose.yml
-      service: odoo
+    - USERMAP_UID=1000
+    - USERMAP_GID=1000
+    - VIRTUAL_HOST=grap7-instance.vd
+    - VIRTUAL_PORT=8069
+    - MAINTAINER_QUALITY_TOOLS=/home/sylvain/.voodoo/shared/maintainer_quality_tools
+    image: akretion/voodoo:latest
     links:
     - db
-    ports:
-    - 7069:8069 # Odoo
-    - 7032:5432 # PostgreSQL
     volumes:
     - .:/workspace
     - .db/socket/:/var/run/postgresql/
+    - /opt/sylvain/grap/backup/GRP/:/workspace/backup
     - /home/sylvain/.voodoo/shared:/home/sylvain/.voodoo/shared
-    - /pro/grap/backup/:/workspace/backup/
-  pgadmin:
-    image: fenglc/pgadmin4
-    links:
-    - db
-    volumes:
-    - pgadmin:/root/.pgadmin
-    ports:
-    - 7050:5050
 version: '2'
-volumes:
-    pgadmin:
-        external: false
