@@ -1,3 +1,5 @@
+# Custom GRAP ignore
+/backup/
 upgrade_8/secret_configuration.py
 upgrade_8/xx_*
 upgrade_8/zz_*
