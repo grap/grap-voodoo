@@ -3,18 +3,12 @@ from optparse import OptionParser
 
 from migration_function import (
     manage_odoo_process, set_upgrade_mode, backup_database,
-    create_new_database, execute_sql_file, update_instance,
-    run_instance, kill_process, install_modules, uninstall_modules, _log)
+    create_new_database, execute_sql_step_file, update_instance,
+    run_instance, kill_process, install_modules, uninstall_modules, _log,
+    STEP_DICT, clean_database)
 
 from migration_configuration import INSTALL_MODULE_LIST, UNINSTALL_MODULE_LIST
 
-STEP_DICT = {
-    1: 'upgrade_7_8',
-    2: 'update',
-    3: 'install',
-    4: 'uninstall',
-    5: 'orm_operation',
-}
 
 # ---------------
 # -- Options Part
@@ -58,14 +52,16 @@ target_log_level = options.log_level
 # ----------------
 
 def run_step(step, database, backup_step):
-    step_name = STEP_DICT[step]
+    step_name = STEP_DICT[step]['name']
+    _log("*******************************************************************")
     _log("******** Running Step #%d : %s ********" % (step, step_name))
+    _log("*******************************************************************")
     if backup_step:
         # Backup current database
-        backup_database(database, step, step_name)
+        backup_database(database, step)
 
     # run SQL Script
-    execute_sql_file(database, step, step_name)
+    execute_sql_step_file(database, step)
 
     if step == 1:
         # Upgrade with OpenUpgrade
@@ -98,6 +94,10 @@ def run_step(step, database, backup_step):
         # TODO, create inventories
         kill_process(proc)
 
+    # Clean Database
+    clean_database(database, step)
+
+
 
 # ------------
 # -- Main Part
@@ -108,13 +108,13 @@ manage_odoo_process(False)
 
 if '_current' in target_database:
     # Use the target database. (could be instable, but avoid to rerun all
-    # the process
+    # the process)
     current_database = target_database
 else:
     # Create current database, based on the option database
-    current_database = create_new_database(
-        target_database, target_step, STEP_DICT[target_step])
+    current_database = create_new_database(target_database, target_step)
 
+# Do not backup fort the first step
 backup_step = False
 
 while target_step <= max(STEP_DICT.keys()):

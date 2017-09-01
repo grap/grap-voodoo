@@ -26,6 +26,9 @@ INSTALL_MODULE_LIST = [
     'stock_disable_barcode_interface',
     'product_supplierinfo_tree_price_info',
     'pos_pricelist',
+    'pos_multiple_control',
+    'grap_pos_change_sale_move',
+    'grap_pos_change_payment_move',
 
     # REPLACE
     # account_product_fiscal_classification
@@ -40,18 +43,18 @@ INSTALL_MODULE_LIST = [
     # 'product_replenishment_cost',
     # 'pos_order_load',
 
-    ## FIXME / later
-    ## > en conflit avec invoice_pricelist.
+    # # FIXME / later
+    # # > en conflit avec invoice_pricelist.
     # 'account_invoice_pricelist',
     # 'account_invoice_pricelist_sale',
     # 'account_invoice_pricelist_sale_stock',
 
-    ## > Init values.
+    # # > Init values.
     # 'grap_standard_price
 
-    ## > Later, when grap_standard_price will be installed.
-    # 'pos_margin',
-    # 'invoice_margin',
+    # # > Later, when grap_standard_price will be installed.
+    # 'pos_margin',
+    # 'invoice_margin',
 
 ]
 
@@ -91,4 +94,6 @@ UNINSTALL_MODULE_LIST = [
     'stock_picking_mass_assign',
     'web_confirm_window_close',
     'web_popup_large',
+    'pos_multiple_cash_control',
+    'grap_change_account_move_line',
 ]

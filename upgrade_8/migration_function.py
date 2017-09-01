@@ -13,7 +13,8 @@ from secret_configuration import (
     ODOO_FOLDER_BACKUP, ODOO_FOLDER_NORMAL, ODOO_FOLDER_UPGRADE,
     ODOO_LOCAL_URL,
     #    ODOO_EXTERNAL_DATABASE, ODOO_EXTERNAL_URL,
-    ODOO_USER, ODOO_PASSWORD, USE_SUDO)
+    ODOO_USER, ODOO_PASSWORD, USE_SUDO,
+    LOG_FILE)
 
 TEMPORARY_FOLDER = '/tmp/'
 TEMPORARY_FILE_DB_LIST = '/tmp/xx_database_list'
@@ -21,20 +22,15 @@ TEMPORARY_FILE_DB_LIST = '/tmp/xx_database_list'
 ODOO_UPDATE_SCRIPT = "../bin/start_openerp --stop-after-init"\
     " -u {module_list} -d {database} --log-level {log_level}"
 
-
 ODOO_RUN_SCRIPT = "../bin/start_openerp --log-level {log_level}"
 
-
-def _log(text, error=False):
-    try:
-        res = '%s - %s' % (
-            datetime.today().strftime("%d-%m-%y - %H:%M:%S"), text)
-        print res
-        if error:
-            print error
-            traceback.print_stack()
-    except:
-        pass
+STEP_DICT = {
+    1: {'name': 'upgrade_7_8', 'backup_db': True, 'clean_after': True},
+    2: {'name': 'update', 'backup_db': True, 'clean_after': False},
+    3: {'name': 'install', 'backup_db': False, 'clean_after': False},
+    4: {'name': 'uninstall', 'backup_db': False, 'clean_after': False},
+    5: {'name': 'orm_operation', 'backup_db': False, 'clean_after': True},
+}
 
 
 def _generate_command(command, user):
@@ -90,7 +86,8 @@ def set_upgrade_mode(upgrade_mode):
         os.rename(ODOO_FOLDER_BACKUP, ODOO_FOLDER_NORMAL)
 
 
-def execute_sql_file(database, step, step_name):
+def execute_sql_step_file(database, step):
+    step_name = STEP_DICT[step]['name']
     sql_file = '%d_before_%s.sql' % (step, step_name)
     if os.path.exists(sql_file):
         return _bash_execute(
@@ -99,7 +96,8 @@ def execute_sql_file(database, step, step_name):
             user='postgres')
 
 
-def create_new_database(target_database, step, step_name):
+def create_new_database(target_database, step):
+    step_name = STEP_DICT[step]['name']
     _bash_execute(
         "psql -l -o %s" % TEMPORARY_FILE_DB_LIST, user='postgres', log=False)
     file_database_list = open(TEMPORARY_FILE_DB_LIST, 'r')
@@ -129,24 +127,39 @@ def create_new_database(target_database, step, step_name):
     return new_database
 
 
-def backup_database(database, step, step_name):
-    # TODO FIXME, disabled backup for the time being
-    return
-    backup = '%s___%d_%s' % (database.replace('_current', ''), step, step_name)
-    # Search for previous backup
+def backup_database(database, step):
+    step_name = STEP_DICT[step]['name']
+    backup_db = STEP_DICT[step]['backup_db']
+    if backup_db:
+        backup = '%s___%d_%s' % (
+            database.replace('_current', ''), step, step_name)
+        # Search for previous backup
+        _bash_execute(
+            "psql -l -o %s" % TEMPORARY_FILE_DB_LIST, user='postgres',
+            log=False)
+        file_database_list = open(TEMPORARY_FILE_DB_LIST, 'r')
+        content = file_database_list.readlines()
+        found = ' %s ' % backup in ''.join(content)
+        if found:
+            # Drop previous backup
+            _bash_execute("dropdb %s" % backup, user='postgres')
+        # Backup Database
+        _bash_execute(
+            "createdb %s --template %s --owner odoo" % (
+                backup, database), user='postgres')
+        _bash_execute("rm %s" % TEMPORARY_FILE_DB_LIST, log=False)
+
+
+def clean_database(database, step):
+    if not STEP_DICT[step]['clean_after']:
+        return
     _bash_execute(
-        "psql -l -o %s" % TEMPORARY_FILE_DB_LIST, user='postgres', log=False)
-    file_database_list = open(TEMPORARY_FILE_DB_LIST, 'r')
-    content = file_database_list.readlines()
-    found = ' %s ' % backup in ''.join(content)
-    if found:
-        # Drop previous backup
-        _bash_execute("dropdb %s" % backup, user='postgres')
-    # Backup Database
+        "psql -d %s -c 'VACUUM FULL;'" % database, user='postgres')
     _bash_execute(
-        "createdb %s --template %s --owner odoo" % (
-            backup, database), user='postgres')
-    _bash_execute("rm %s" % TEMPORARY_FILE_DB_LIST, log=False)
+        "psql -d %s -c 'REINDEX DATABASE %s;'" % (database, database),
+        user='postgres')
+    _bash_execute(
+        "psql -d %s -c 'ANALYSE;'" % database, user='postgres')
 
 
 def update_instance(database, module_list, log_level):
@@ -245,3 +258,20 @@ def uninstall_modules(database, module_list):
             else:
                 _log("WARNING : '%s' module in '%s' state" % (
                     module.name, module.state))
+
+
+def _log(text, error=False):
+    try:
+        res = '%s - %s' % (
+            datetime.today().strftime("%d-%m-%y - %H:%M:%S"), text)
+        # Log in File
+        file = open(LOG_FILE, 'a')
+        file.write(res + '\n')
+        # Classical Stdout
+        print res
+        if error:
+            file.write(error)
+            print error
+            traceback.print_stack()
+    except:
+        pass
