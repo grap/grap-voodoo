@@ -5,7 +5,8 @@ from migration_function import (
     manage_odoo_process, set_upgrade_mode, backup_database,
     create_new_database, execute_sql_step_file, update_instance,
     run_instance, kill_process, install_modules, uninstall_modules, _log,
-    STEP_DICT, clean_database)
+    clean_database, create_inventories,
+    STEP_DICT)
 
 from migration_configuration import INSTALL_MODULE_LIST, UNINSTALL_MODULE_LIST
 
@@ -91,12 +92,11 @@ def run_step(step, database, backup_step):
         # Create Inventories, to populate quants
         set_upgrade_mode(False)
         proc = run_instance(target_log_level)
-        # TODO, create inventories
+        create_inventories(database)
         kill_process(proc)
 
     # Clean Database
     clean_database(database, step)
-
 
 
 # ------------

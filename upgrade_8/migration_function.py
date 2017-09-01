@@ -12,8 +12,8 @@ from migration_import import erppeek, psutil
 from secret_configuration import (
     ODOO_FOLDER_BACKUP, ODOO_FOLDER_NORMAL, ODOO_FOLDER_UPGRADE,
     ODOO_LOCAL_URL,
-    #    ODOO_EXTERNAL_DATABASE, ODOO_EXTERNAL_URL,
-    ODOO_USER, ODOO_PASSWORD, USE_SUDO,
+    ODOO_EXTERNAL_DATABASE, ODOO_EXTERNAL_URL,
+    ODOO_USER, ODOO_LOCAL_PASSWORD, ODOO_EXTERNAL_PASSWORD, USE_SUDO,
     LOG_FILE)
 
 TEMPORARY_FOLDER = '/tmp/'
@@ -258,6 +258,50 @@ def uninstall_modules(database, module_list):
             else:
                 _log("WARNING : '%s' module in '%s' state" % (
                     module.name, module.state))
+
+
+def create_inventories(database):
+    # Connect to old database
+    old_openerp = _connect_instance(
+        ODOO_EXTERNAL_URL, ODOO_EXTERNAL_DATABASE, ODOO_USER,
+        ODOO_EXTERNAL_PASSWORD)
+    # Get stock
+    product_ids = old_openerp.ProductProduct.search(
+        ['|', ('active', '=', True), ('active', '=', False)])
+    products = old_openerp.ProductProduct.browse(product_ids)
+    res = products.read(['name', 'qty_available', 'company_id'])
+
+    stock_datas = {}
+    for item in res:
+        if item['company_id']:
+            stock_datas.setdefault(item['company_id'].id, {})
+            stock_datas[item['company_id'].id][item['id']] =\
+                item['qty_available']
+        else:
+            _log(
+                "WARNING : stock ignored for '%s' product (#%d) : company"
+                " not set" % (item['name'], item['id']))
+
+    # Connect to New DB
+    new_openerp = _connect_instance(
+        ODOO_LOCAL_URL, database, ODOO_USER, ODOO_LOCAL_PASSWORD)
+
+    for company_id, stock_data in stock_datas.iteritems():
+        # Switch user company
+        user = new_openerp.ResUsers.browse([1])
+        user.write({'company_id': company_id})
+        stock_inventory = new_openerp.StockInventory.create(
+            {'name': 'Inventaire Post Migration', 'filter': 'partial'})
+        stock_inventory.prepare_inventory()
+        inventory_id = stock_inventory.id
+        location_id = stock_inventory.location_id.id
+        for product_id, qty in stock_data.iteritems():
+            new_openerp.StockInventoryLine.create({
+                'inventory_id': inventory_id,
+                'product_id': product_id,
+                'location_id': location_id,
+                'product_qty': qty})
+        stock_inventory.action_done()
 
 
 def _log(text, error=False):
