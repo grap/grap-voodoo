@@ -23,3 +23,8 @@ WHERE model_id in (
 -- Delete all tiles
 DELETE
 FROM tile_tile;
+
+-- Delete draft inventories;
+delete
+FROM stock_inventory
+WHERE state = 'draft';

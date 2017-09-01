@@ -78,22 +78,28 @@ def run_step(step, database, backup_step):
         # Install New Modules
         set_upgrade_mode(False)
         proc = run_instance(target_log_level)
-        install_modules(database, INSTALL_MODULE_LIST)
-        kill_process(proc)
+        try:
+            install_modules(database, INSTALL_MODULE_LIST)
+        finally:
+            kill_process(proc)
 
     elif step == 4:
         # Uninstall Obsolete Modules
         set_upgrade_mode(False)
         proc = run_instance(target_log_level)
-        uninstall_modules(database, UNINSTALL_MODULE_LIST)
-        kill_process(proc)
+        try:
+            uninstall_modules(database, UNINSTALL_MODULE_LIST)
+        finally:
+            kill_process(proc)
 
     elif step == 5:
         # Create Inventories, to populate quants
         set_upgrade_mode(False)
         proc = run_instance(target_log_level)
-        create_inventories(database)
-        kill_process(proc)
+        try:
+            create_inventories(database)
+        finally:
+            kill_process(proc)
 
     # Clean Database
     clean_database(database, step)

@@ -96,4 +96,5 @@ UNINSTALL_MODULE_LIST = [
     'web_popup_large',
     'pos_multiple_cash_control',
     'grap_change_account_move_line',
+    'stock_inventory_sum_duplicates',
 ]

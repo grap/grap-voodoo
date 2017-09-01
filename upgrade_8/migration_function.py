@@ -296,11 +296,7 @@ def create_inventories(database):
         inventory_id = stock_inventory.id
         location_id = stock_inventory.location_id.id
         for product_id, qty in stock_data.iteritems():
-            new_openerp.StockInventoryLine.create({
-                'inventory_id': inventory_id,
-                'product_id': product_id,
-                'location_id': location_id,
-                'product_qty': qty})
+            new_openerp.StockInventoryLine.create({'inventory_id': inventory_id, 'product_id': product_id, 'location_id': location_id,'product_qty': qty})
         stock_inventory.action_done()
 
 
