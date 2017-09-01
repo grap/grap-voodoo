@@ -19,7 +19,7 @@ SET active=false
 WHERE id IN (
         SELECT picking_type_id
         FROM pos_config
-        WHERE state != 'active')
+        WHERE state != 'active');
 
 -- Disable fucking 3PP picking type
 update stock_picking_type set active=false where company_id = 1 and warehouse_id != 1;
