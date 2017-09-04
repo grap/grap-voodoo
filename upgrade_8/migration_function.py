@@ -269,14 +269,17 @@ def create_inventories(database):
     product_ids = old_openerp.ProductProduct.search(
         ['|', ('active', '=', True), ('active', '=', False)])
     products = old_openerp.ProductProduct.browse(product_ids)
-    res = products.read(['name', 'qty_available', 'company_id'])
+    res = products.read(['name', 'qty_available', 'company_id', 'active'])
 
     stock_datas = {}
     for item in res:
         if item['company_id']:
             stock_datas.setdefault(item['company_id'].id, {})
-            stock_datas[item['company_id'].id][item['id']] =\
-                item['qty_available']
+            stock_datas[item['company_id'].id][item['id']] = {
+                'qty_available': item['qty_available'],
+                'name': item['name'],
+                'active': item['active'],
+            }
         else:
             _log(
                 "WARNING : stock ignored for '%s' product (#%d) : company"
@@ -289,14 +292,29 @@ def create_inventories(database):
     for company_id, stock_data in stock_datas.iteritems():
         # Switch user company
         user = new_openerp.ResUsers.browse([1])
-        user.write({'company_id': company_id})
+        if ODOO_USER == 'admin':
+            user.write({'company_id': company_id})
         stock_inventory = new_openerp.StockInventory.create(
             {'name': 'Inventaire Post Migration', 'filter': 'partial'})
         stock_inventory.prepare_inventory()
         inventory_id = stock_inventory.id
         location_id = stock_inventory.location_id.id
-        for product_id, qty in stock_data.iteritems():
-            new_openerp.StockInventoryLine.create({'inventory_id': inventory_id, 'product_id': product_id, 'location_id': location_id,'product_qty': qty})
+        for product_id, vals in stock_data.iteritems():
+
+            qty = vals['qty_available']
+            name = vals['name']
+            active = vals['active']
+            if qty:
+                vals = {'inventory_id': inventory_id, 'product_id': product_id, 'location_id': location_id,'product_qty': qty}
+                print "*****************"
+                import pdb; pdb.set_trace()
+                print vals
+                print name
+                print active
+                try:
+                    test = new_openerp.StockInventoryLine.create(vals)
+                except Exception as e:
+                    print ">>> FAILED !!! "
         stock_inventory.action_done()
 
 

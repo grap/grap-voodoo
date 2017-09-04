@@ -80,6 +80,9 @@ def run_step(step, database, backup_step):
         proc = run_instance(target_log_level)
         try:
             install_modules(database, INSTALL_MODULE_LIST)
+        except Exception as e:
+            import pdb; pdb.set_trace()
+            _log("ERROR during the execution", e)
         finally:
             kill_process(proc)
 
@@ -89,6 +92,9 @@ def run_step(step, database, backup_step):
         proc = run_instance(target_log_level)
         try:
             uninstall_modules(database, UNINSTALL_MODULE_LIST)
+        except Exception as e:
+            import pdb; pdb.set_trace()
+            _log("ERROR during the execution", e)
         finally:
             kill_process(proc)
 
@@ -96,13 +102,16 @@ def run_step(step, database, backup_step):
         # Create Inventories, to populate quants
         set_upgrade_mode(False)
         proc = run_instance(target_log_level)
-        try:
-            create_inventories(database)
-        finally:
-            kill_process(proc)
+#        try:
+        create_inventories(database)
+#        except Exception as e:
+#            import pdb; pdb.set_trace()
+#            _log("ERROR during the execution", e)
+#        finally:
+        kill_process(proc)
 
     # Clean Database
-    clean_database(database, step)
+#    clean_database(database, step)
 
 
 # ------------

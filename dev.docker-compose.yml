@@ -18,13 +18,13 @@ services:
     - USERMAP_GID=1000
     - VIRTUAL_HOST=grap8-instance.vd
     - VIRTUAL_PORT=8069
-    - MAINTAINER_QUALITY_TOOLS=/home/sylvain/.voodoo/shared/maintainer_quality_tools
+    - MAINTAINER_QUALITY_TOOLS=/home/${USER}/.voodoo/shared/maintainer_quality_tools
     image: akretion/voodoo:latest
     links:
     - db
     volumes:
     - .:/workspace
     - .db/socket/:/var/run/postgresql/
-    - /opt/sylvain/grap/backup/GRP/:/workspace/backup
-    - /home/sylvain/.voodoo/shared:/home/sylvain/.voodoo/shared
+    - /opt/grap_dev/backup/GRP/:/workspace/backup
+    - /home/${USER}/.voodoo/shared:/home/${USER}/.voodoo/shared
 version: '2'
