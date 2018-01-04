@@ -28,3 +28,6 @@ FROM tile_tile;
 delete
 FROM stock_inventory
 WHERE state = 'draft';
+
+-- update ir sequence because OpenUpgrade try to recreate one, generating an error...
+update ir_sequence_type set code='stock.orderpoint.openupgrade_7_8' where code = 'stock.orderpoint';
