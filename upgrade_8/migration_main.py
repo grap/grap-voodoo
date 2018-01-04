@@ -5,10 +5,11 @@ from migration_function import (
     manage_odoo_process, set_upgrade_mode, backup_database,
     create_new_database, execute_sql_step_file, update_instance,
     run_instance, kill_process, install_modules, uninstall_modules, _log,
-    clean_database, create_inventories,
+    clean_database, create_inventories, check_module_state,
     STEP_DICT)
 
-from migration_configuration import INSTALL_MODULE_LIST, UNINSTALL_MODULE_LIST
+from migration_configuration import\
+    INSTALL_MODULE_LIST, UNINSTALL_MODULE_LIST, CHECK_MODULE_LIST
 
 
 # ---------------
@@ -69,6 +70,16 @@ def run_step(step, database, backup_step):
         set_upgrade_mode(True)
         update_instance(database, 'all', target_log_level)
 
+        # Check if update is OK, otherwise, quit
+        proc = run_instance(target_log_level)
+        try:
+            check_module_state(database, CHECK_MODULE_LIST)
+        except Exception as e:
+            _log("ERROR during the execution", e)
+            raise e
+        finally:
+            kill_process(proc)
+
     elif step == 2:
         # Update With OCB
         set_upgrade_mode(False)
@@ -81,7 +92,6 @@ def run_step(step, database, backup_step):
         try:
             install_modules(database, INSTALL_MODULE_LIST)
         except Exception as e:
-            import pdb; pdb.set_trace()
             _log("ERROR during the execution", e)
         finally:
             kill_process(proc)
@@ -93,7 +103,6 @@ def run_step(step, database, backup_step):
         try:
             uninstall_modules(database, UNINSTALL_MODULE_LIST)
         except Exception as e:
-            import pdb; pdb.set_trace()
             _log("ERROR during the execution", e)
         finally:
             kill_process(proc)

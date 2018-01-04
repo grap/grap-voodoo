@@ -201,6 +201,11 @@ def _connect_instance(url, database, login, password):
         return False
     return openerp
 
+def check_module_state(database, module_list):
+    openerp = _connect_instance(
+        ODOO_LOCAL_URL, database, ODOO_USER, ODOO_PASSWORD)
+    modules = openerp.IrModuleModule.browse([('state', '!=', 'uninstalled')])
+    import pdb; pdb.set_trace()
 
 def install_modules(database, module_list):
     # Update module list

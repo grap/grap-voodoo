@@ -98,3 +98,5 @@ UNINSTALL_MODULE_LIST = [
     'grap_change_account_move_line',
     'stock_inventory_sum_duplicates',
 ]
+
+CHECK_MODULE_LIST = ['point_of_sale']
