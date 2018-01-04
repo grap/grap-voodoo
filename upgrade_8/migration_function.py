@@ -13,8 +13,7 @@ from secret_configuration import (
     ODOO_FOLDER_BACKUP, ODOO_FOLDER_NORMAL, ODOO_FOLDER_UPGRADE,
     ODOO_LOCAL_URL,
     ODOO_EXTERNAL_DATABASE, ODOO_EXTERNAL_URL,
-    ODOO_USER, ODOO_LOCAL_PASSWORD, ODOO_EXTERNAL_PASSWORD, USE_SUDO,
-    LOG_FILE)
+    ODOO_USER, ODOO_PASSWORD, USE_SUDO, LOG_FILE)
 
 TEMPORARY_FOLDER = '/tmp/'
 TEMPORARY_FILE_DB_LIST = '/tmp/xx_database_list'
@@ -268,8 +267,7 @@ def uninstall_modules(database, module_list):
 def create_inventories(database):
     # Connect to old database
     old_openerp = _connect_instance(
-        ODOO_EXTERNAL_URL, ODOO_EXTERNAL_DATABASE, ODOO_USER,
-        ODOO_EXTERNAL_PASSWORD)
+        ODOO_EXTERNAL_URL, ODOO_EXTERNAL_DATABASE, ODOO_USER, ODOO_PASSWORD)
     # Get stock
     product_ids = old_openerp.ProductProduct.search(
         ['|', ('active', '=', True), ('active', '=', False)])
@@ -292,7 +290,7 @@ def create_inventories(database):
 
     # Connect to New DB
     new_openerp = _connect_instance(
-        ODOO_LOCAL_URL, database, ODOO_USER, ODOO_LOCAL_PASSWORD)
+        ODOO_LOCAL_URL, database, ODOO_USER, ODOO_PASSWORD)
 
     for company_id, stock_data in stock_datas.iteritems():
         # Switch user company
