@@ -217,14 +217,13 @@ def check_module_state(database, module_list_to_check):
         my_dict[major_version][module.state].append(module.name)
     for major_version, sub_dict in my_dict.iteritems():
         _log("===============================================================")
-        _log("Major Version %s" % version)
+        _log("Major Version %s" % major_version)
         for state, module_list in sub_dict.iteritems():
             _log("======= State '%s'" % state)
             _log(module_list)
     for module in module_list_to_check:
         if module not in my_dict['8']['installed']:
             raise Exception("module %s not in installed state" % module)
-    import pdb; pdb.set_trace()
 
 def install_modules(database, module_list):
     # Update module list
