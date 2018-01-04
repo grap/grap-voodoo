@@ -200,10 +200,30 @@ def _connect_instance(url, database, login, password):
         return False
     return openerp
 
-def check_module_state(database, module_list):
+def check_module_state(database, module_list_to_check):
     openerp = _connect_instance(
         ODOO_LOCAL_URL, database, ODOO_USER, ODOO_PASSWORD)
+    # Initialize my_dict
+    state_list = [
+        'uninstallable', 'installed', 'to upgrade', 'to remove', 'to install']
+    my_dict = {}
+    for version in ['7', '8']:
+        my_dict[version] = {}
+        for state in state_list:
+            my_dict[version][state] = []
     modules = openerp.IrModuleModule.browse([('state', '!=', 'uninstalled')])
+    for module in modules:
+        major_version = module.latest_version[0]
+        my_dict[major_version][module.state].append(module.name)
+    for major_version, sub_dict in my_dict.iteritems():
+        _log("===============================================================")
+        _log("Major Version %s" % version)
+        for state, module_list in sub_dict.iteritems():
+            _log("======= State '%s'" % state)
+            _log(module_list)
+    for module in module_list_to_check:
+        if module not in my_dict['8']['installed']:
+            raise Exception("module %s not in installed state" % module)
     import pdb; pdb.set_trace()
 
 def install_modules(database, module_list):
