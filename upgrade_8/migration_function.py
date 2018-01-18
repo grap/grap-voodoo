@@ -284,63 +284,135 @@ def uninstall_modules(database, module_list):
 
 
 def create_inventories(database):
-    # Connect to old database
+    product_fields = 'qty_available', 'uom_id'
+
+    # Connect to old database and new database
     old_openerp = _connect_instance(
         ODOO_EXTERNAL_URL, ODOO_EXTERNAL_DATABASE, ODOO_USER, ODOO_PASSWORD)
-    # Get stock
-    product_ids = old_openerp.ProductProduct.search(
-        ['|', ('active', '=', True), ('active', '=', False)])
-    products = old_openerp.ProductProduct.browse(product_ids)
-    res = products.read(['name', 'qty_available', 'company_id', 'uom_id'])
 
-    stock_datas = {}
-    for item in res:
-        if item['company_id']:
-            stock_datas.setdefault(item['company_id'].id, {})
-            if item['qty_available'] != 0.0:
-                stock_datas[item['company_id'].id][item['id']] = (
-                    item['qty_available'],
-                    item['uom_id'],
-                )
-        else:
-            _log(
-                "WARNING : stock ignored for '%s' product (#%d) : company"
-                " not set" % (item['name'], item['id']))
-
-    # Connect to New DB
     new_openerp = _connect_instance(
         ODOO_LOCAL_URL, database, ODOO_USER, ODOO_PASSWORD)
 
-    for company_id, stock_data in stock_datas.iteritems():
-        # Switch user company
-        user = new_openerp.ResUsers.browse([1])
-        if ODOO_USER == 'admin':
-            user.write({'company_id': company_id})
-        _log("Creating New Inventory for company #d" % (company_id))
-        stock_inventory = new_openerp.StockInventory.create(
-            {'name': 'Inventaire Post Migration', 'filter': 'partial'})
-        stock_inventory.prepare_inventory()
-        inventory_id = stock_inventory.id
-        location_id = stock_inventory.location_id.id
-        line_ids_vals = []
-        for product_id, vals in stock_data.iteritems():
-            (qty, uom_id) = vals
+    # Load companies
+    company_ids = old_openerp.ResCompany.search()
+    for company_id in company_ids:
+        # Get company
+        company = new_openerp.ResCompany.browse(company_id)
 
-            qty = vals['qty_available']
-            name = vals['name']
-            line_ids_vals.append([0, False, {
+        # Get Location
+        locations = new_openerp.StockLocation.browse(
+            [('company_id', '=', company_id),
+            ('usage', '=', 'internal'),
+            ('name', 'ilike', '%stock%')])
+
+        if len(locations) != 1:
+            _log(
+                "ERROR - INVENTORY CANCELLED %d internal location(s)"
+                " found for the company %d - %s" % (
+                len(locations), company.id, company.code))
+            _log(', '.join([x.name for x in locations]))
+            continue
+        else:
+            location = locations[0]
+
+        _log("loading company %d" % company_id)
+        # Load Data in old instance
+        product_ids = old_openerp.ProductProduct.search(
+            [('company_id', '=', company_id),
+            '|', ('active', '=', True), ('active', '=', False)])
+        products_data = old_openerp.ProductProduct.read(
+            product_ids, product_fields)
+        _log("%d products data loaded" % len(product_ids))
+
+        # Switch user in new company
+        user = new_openerp.ResUsers.browse([1])
+        user.write({'company_id': company_id})
+
+        # Load Data in new instance
+        new_product_ids = new_openerp.ProductProduct.search(
+            [('company_id', '=', company_id),
+            '|', ('active', '=', True), ('active', '=', False)])
+
+        _log("Creating New Inventory for company %d" % (company_id))
+        stock_inventory = new_openerp.StockInventory.create({
+            'name': '%s - Inventaire Post Migration V8' % (company.code),
+            'location_id': location.id,
+            'filter': 'partial',
+            'company_id': company_id,
+        })
+        stock_inventory.prepare_inventory()
+
+        # Add lines
+        for product_data in products_data:
+            if product_data['id'] not in new_product_ids:
+                _log(
+                    "ERROR - INVENTORY LINE CANCELLED product %d not found"
+                    " found for the company %d - %s" % (
+                    product_data['id'], company.id, company.code))
+                continue
+            line_vals = {
                 'partner_id': False,
-                'product_id': product_id,
-                'product_uom_id': uom_id,
+                'product_id': product_data['id'],
+                'product_uom_id': product_data['uom_id'][0],
                 'prod_lot_id': False,
                 'package_id': False,
-                'product_qty': qty,
-                'location_id': location_id}])
-        try:
-            test = stock_inventory.write({'line_ids': line_ids_vals})
-        except Exception as e:
-            print ">>> FAILED !!! "
+                'product_qty': max(0, product_data['qty_available']),
+                'location_id': location.id,
+            }
+            stock_inventory.write({'line_ids': [[0, 0, line_vals]]})
+
         stock_inventory.action_done()
+
+###        products = old_openerp.ProductProduct.browse(product_ids)
+###        res = products.read(['name', 'qty_available', 'company_id', 'uom_id'])
+
+###        stock_datas = {}
+###        for item in res:
+###            if item['company_id']:
+###                stock_datas.setdefault(item['company_id'].id, {})
+###                if item['qty_available'] != 0.0:
+###                    stock_datas[item['company_id'].id][item['id']] = (
+###                        item['qty_available'],
+###                        item['uom_id'],
+###                    )
+###            else:
+###                _log(
+###                    "WARNING : stock ignored for '%s' product (#%d) : company"
+###                    " not set" % (item['name'], item['id']))
+
+##    # Connect to New DB
+##    new_openerp = _connect_instance(
+##        ODOO_LOCAL_URL, database, ODOO_USER, ODOO_PASSWORD)
+
+##    for company_id, stock_data in stock_datas.iteritems():
+##        # Switch user company
+##        user = new_openerp.ResUsers.browse([1])
+##        user.write({'company_id': company_id})
+##        _log("Creating New Inventory for company #d" % (company_id))
+##        stock_inventory = new_openerp.StockInventory.create(
+##            {'name': 'Inventaire Post Migration', 'filter': 'partial'})
+##        stock_inventory.prepare_inventory()
+###        inventory_id = stock_inventory.id
+###        location_id = stock_inventory.location_id.id
+###        line_ids_vals = []
+###        for product_id, vals in stock_data.iteritems():
+###            (qty, uom_id) = vals
+
+###            qty = vals['qty_available']
+###            name = vals['name']
+###            line_ids_vals.append([0, False, {
+###                'partner_id': False,
+###                'product_id': product_id,
+###                'product_uom_id': uom_id,
+###                'prod_lot_id': False,
+###                'package_id': False,
+###                'product_qty': qty,
+###                'location_id': location_id}])
+###        try:
+###            test = stock_inventory.write({'line_ids': line_ids_vals})
+###        except Exception as e:
+###            print ">>> FAILED !!! "
+###        stock_inventory.action_done()
 
 
 def _log(text, error=False):

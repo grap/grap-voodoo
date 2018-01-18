@@ -29,6 +29,7 @@ INSTALL_MODULE_LIST = [
     'pos_multiple_control',
     'grap_pos_change_sale_move',
     'grap_pos_change_payment_move',
+    'web_hide_db_manager_link',
 
     # REPLACE
     # account_product_fiscal_classification

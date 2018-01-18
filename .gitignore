@@ -1,7 +1,7 @@
 # Custom GRAP ignore
 /backup/
 upgrade_8/secret_configuration.py
-upgrade_8/upgrade_8.log
+upgrade_8/*.log
 upgrade_8/xx_*
 upgrade_8/zz_*
 buildout.current.cfg
