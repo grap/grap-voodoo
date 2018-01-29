@@ -124,7 +124,7 @@ def run_step(step, database, backup_step):
 #            import pdb; pdb.set_trace()
 #            _log("ERROR during the execution", e)
 #        finally:
-#            kill_process(proc)
+        kill_process(proc)
 
     # Clean Database
     # TODO
