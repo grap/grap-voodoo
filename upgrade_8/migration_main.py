@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
 from optparse import OptionParser
 
-#import sys
-
-#sys.path[0:0] = [
-#    '/home/sylvain/.voodoo/shared/eggs/ERPpeek-1.6.3-py2.7.egg',
-#    '/home/sylvain/.voodoo/shared/eggs/psutil-5.4.3-py2.7-linux-x86_64.egg',
-#]
-
 from migration_function import (
     manage_odoo_process, set_upgrade_mode, backup_database,
     create_new_database, execute_sql_step_file, update_instance,
@@ -118,18 +111,15 @@ def run_step(step, database, backup_step):
         # Create Inventories, to populate quants
         set_upgrade_mode(False)
         proc = run_instance(target_log_level)
-#        try:
-        create_inventories(database)
-#        except Exception as e:
-#            import pdb; pdb.set_trace()
-#            _log("ERROR during the execution", e)
-#        finally:
-        kill_process(proc)
+        try:
+            create_inventories(database)
+        except Exception as e:
+            _log("ERROR during the execution", e)
+        finally:
+            kill_process(proc)
 
     # Clean Database
-    # TODO
-    # clean_database(database, step)
-
+    clean_database(database, step)
 
 # ------------
 # -- Main Part
