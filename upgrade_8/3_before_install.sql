@@ -24,7 +24,7 @@ WHERE id IN (
 -- Disable fucking 3PP picking type
 update stock_picking_type set active=false where company_id = 1 and warehouse_id != 1;
 
--- Fast creation of product_product.has_image
+-- Fast creation of product_product.has_image (1/2)
 ALTER TABLE product_product ADD COLUMN has_image bool DEFAULT False;
 
 UPDATE product_product

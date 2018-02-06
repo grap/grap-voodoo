@@ -442,6 +442,62 @@ def create_inventories(database):
                         "line_val" + str(line_val))
         stock_inventory.action_done()
 
+def create_tiles(database):
+    # Connect to old database and new database
+    old_openerp = _connect_instance(
+        ODOO_EXTERNAL_URL, ODOO_EXTERNAL_DATABASE, ODOO_USER, ODOO_PASSWORD)
+
+    new_openerp = _connect_instance(
+        ODOO_LOCAL_URL, database, ODOO_USER, ODOO_PASSWORD)
+    old_tiles = old_openerp.TileTile.browse([])
+    for old_tile in old_tiles:
+        old_model = old_tile.model_id.model
+        if old_tile.id in (13, 14, 42, 43, 72) or 'Balance Facture Frs' in old_tile.name:
+            _log(
+                "INFO tile %d skipped. Big tile. about invoices. %s" % (
+                    old_tile.id, old_model))
+            continue
+        if not len(new_openerp.IrModel.browse([('model', '=', old_model)])):
+            _log(
+                "INFO tile %d skipped. Model '%s' not found" % (
+                    old_tile.id, old_model))
+            continue
+        if not old_tile.action_id:
+            _log(
+                "WARNING tile %d skipped. Old Action undefined" % (
+                    old_tile.id))
+            continue
+        if not len(new_openerp.IrActionsAct_window.browse(
+                [('id', '=', old_tile.action_id.id)])):
+            _log(
+                "WARNING tile %d skipped. Action %d not found" % (
+                    old_tile.id, old_tile.action_id.id))
+            continue
+        if old_tile.field_id and not len(new_openerp.irModelFields.browse(
+                [('id', '=', old_tile.field_id.id)])):
+            _log(
+                "WARNING tile %d skipped. Field %d not found" % (
+                    old_tile.id, old_tile.field_id.id))
+            continue
+        new_vals = {
+            'sequence': old_tile.sequence,
+            'name': old_tile.name,
+            'domain': old_tile.domain,
+            'model_id': old_tile.model_id.id,
+            'user_id': old_tile.user_id and old_tile.user_id.id or False,
+            'action_id': old_tile.action_id.id,
+            'background_color': old_tile.color,
+            'font_color': old_tile.font_color,
+            'primary_function': 'count',
+        }
+        if old_tile.field_function:
+            new_vals.update({
+                'secondary_function': old_tile.field_function,
+                'secondary_field_id': old_tile.field_id.id,
+            })
+        new_openerp.TileTile.create(new_vals)
+
+
 
 def _log(text, error=False):
     try:

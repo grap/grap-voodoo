@@ -6,7 +6,7 @@ from migration_function import (
     create_new_database, execute_sql_step_file, update_instance,
     run_instance, kill_process, install_modules, uninstall_modules, _log,
     clean_database, create_inventories, check_module_state,
-    STEP_DICT)
+    STEP_DICT, create_tiles)
 
 from migration_configuration import\
     INSTALL_MODULE_LIST, UNINSTALL_MODULE_LIST, CHECK_MODULE_LIST
@@ -108,11 +108,13 @@ def run_step(step, database, backup_step):
             kill_process(proc)
 
     elif step == 5:
-        # Create Inventories, to populate quants
         set_upgrade_mode(False)
         proc = run_instance(target_log_level)
         try:
+            # Create Inventories, to populate quants
             create_inventories(database)
+            # Recreate Tiles
+            create_tiles(database)
         except Exception as e:
             _log("ERROR during the execution", e)
         finally:
