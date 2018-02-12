@@ -6,7 +6,7 @@ from migration_function import (
     create_new_database, execute_sql_step_file, update_instance,
     run_instance, kill_process, install_modules, uninstall_modules, _log,
     clean_database, create_inventories, check_module_state,
-    STEP_DICT, create_tiles)
+    STEP_DICT, create_tiles, fix_stock_settings)
 
 from migration_configuration import\
     INSTALL_MODULE_LIST, UNINSTALL_MODULE_LIST, CHECK_MODULE_LIST
@@ -111,6 +111,8 @@ def run_step(step, database, backup_step):
         set_upgrade_mode(False)
         proc = run_instance(target_log_level)
         try:
+            # Fix Stock Settings
+            fix_stock_settings(database)
             # Create Inventories, to populate quants
             create_inventories(database)
             # Recreate Tiles
@@ -120,8 +122,8 @@ def run_step(step, database, backup_step):
         finally:
             kill_process(proc)
 
-    # Clean Database
-    clean_database(database, step)
+##    # Clean Database
+##    clean_database(database, step)
 
 # ------------
 # -- Main Part

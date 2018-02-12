@@ -20,7 +20,6 @@ INSTALL_MODULE_LIST = [
     'account_invoice_merge_purchase',
     'account_invoice_supplierinfo_update',
     'account_invoice_supplierinfo_update_discount',
-    'stock_picking_mass_action',
     'purchase_supplier_rounding_method',
     'product_margin_classification',
     'stock_disable_barcode_interface',
@@ -30,7 +29,10 @@ INSTALL_MODULE_LIST = [
     'grap_pos_change_sale_move',
     'grap_pos_change_payment_move',
     'web_hide_db_manager_link',
+    'l10n_fr_siret',
     'stock_picking_type_image',
+    'grap_qweb_report',
+    'pos_pricelist_fiscal_company',
 
     # REPLACE
     # account_product_fiscal_classification
@@ -99,6 +101,7 @@ UNINSTALL_MODULE_LIST = [
     'pos_multiple_cash_control',
     'grap_change_account_move_line',
     'stock_inventory_sum_duplicates',
+    'grap_change_print',
 ]
 
 CHECK_MODULE_LIST = ['point_of_sale']
