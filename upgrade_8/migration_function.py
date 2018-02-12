@@ -442,6 +442,7 @@ def create_inventories(database):
                         "line_val" + str(line_val))
         stock_inventory.action_done()
 
+
 def create_tiles(database):
     # Connect to old database and new database
     old_openerp = _connect_instance(
@@ -452,7 +453,8 @@ def create_tiles(database):
     old_tiles = old_openerp.TileTile.browse([])
     for old_tile in old_tiles:
         old_model = old_tile.model_id.model
-        if old_tile.id in (13, 14, 42, 43, 72) or 'Balance Facture Frs' in old_tile.name:
+        if old_tile.id in (13, 14, 42, 43, 72) or\
+                'Balance Facture Frs' in old_tile.name:
             _log(
                 "INFO tile %d skipped. Big tile. about invoices. %s" % (
                     old_tile.id, old_model))
@@ -497,6 +499,75 @@ def create_tiles(database):
             })
         new_openerp.TileTile.create(new_vals)
 
+
+def fix_stock_settings(database):
+    new_openerp = _connect_instance(
+        ODOO_LOCAL_URL, database, ODOO_USER, ODOO_PASSWORD)
+    for company in new_openerp.ResCompany.browse([]):
+        _log(
+            "INFO Handling procurement Rule for company %s (#%d)" % (
+                company.name, company.id))
+        # Looking for warehouse
+        warehouse_ids = new_openerp.StockWarehouse.search(
+            [('company_id', '=', company.id)])
+        if len(warehouse_ids) != 1:
+            _log(
+                "WARNING %d (!=1) Warehouses found for company %s (#%d)" % (
+                    len(warehouse_ids), company.name, company.id))
+            continue
+        warehouse_id = warehouse_ids[0]
+        # Looking for Customer Location
+        customer_location_ids = new_openerp.StockLocation.search([
+            ('company_id', '=', company.id),
+            ('usage', '=', 'customer'),
+            ])
+        if len(customer_location_ids) != 1:
+            _log(
+                "WARNING %d (!=1) Customer Locations found for"
+                "company %s (#%d)" % (
+                    len(customer_location_ids), company.name, company.id))
+            continue
+        customer_location_id = customer_location_ids[0]
+        MTS_rules = new_openerp.ProcurementRule.browse([
+            ('warehouse_id', '=', warehouse_id),
+            ('action', '=', 'move'),
+            ('procure_method', '=', 'make_to_stock')])
+        if len(MTS_rules) != 1:
+            _log(
+                "WARNING %d (!=1) rules MTS found for company %s (#%d)" % (
+                    len(MTS_rules), company.name, company.id))
+        else:
+            rule = MTS_rules[0]
+            # Fix MTS Rule
+            rule.write({
+                'name': "%s: Stock -> Clients" % (rule.warehouse_id.name),
+                'location_id': customer_location_id,
+            })
+            # Fix associated Route
+            rule.route_id.write({
+                'name': "%s: Expedition en 1 etape" % (rule.warehouse_id.name),
+                'company_id': rule.warehouse_id.company_id.id,
+            })
+            rule.picking_type_id.write({
+                'name': "Bons de livraisons",
+            })
+            # Fix associated Stock Picking Type
+
+        MTO_rules = new_openerp.ProcurementRule.browse([
+            ('warehouse_id', '=', warehouse_id),
+            ('action', '=', 'move'),
+            ('procure_method', '=', 'make_to_order')])
+        if len(MTS_rules) != 1:
+            _log(
+                "WARNING %d (!=1) rules MTO found for company %s (#%d)" % (
+                    len(MTO_rules), company.name, company.id))
+        else:
+            rule = MTO_rules[0]
+            # Fix MTO Rule
+            rule.write({
+                'name': "%s: Stock -> Clients MTO" % (rule.warehouse_id.name),
+                'location_id': customer_location_id,
+            })
 
 
 def _log(text, error=False):
