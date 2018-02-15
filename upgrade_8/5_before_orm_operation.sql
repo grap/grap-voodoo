@@ -16,3 +16,6 @@ where gid = (
     and uid in (
         SELECT id FROM res_users
         WHERE login not in ('sylvain.legal@grap.coop', 'sylvain.legal2@grap.coop', 'quentin.dupont@grap.coop', 'quentin.dupont2@grap.coop', 'admin@grap.coop'));
+
+
+update account_journal set internal_account_id = default_debit_account_id where active = true and type in ('cash', 'bank');

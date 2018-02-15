@@ -34,3 +34,8 @@ update ir_sequence_type set code='stock.orderpoint.openupgrade_7_8' where code =
 
 -- Pre create field stock_inventory_line.theoretical_qty
 ALTER TABLE stock_inventory_line ADD COLUMN "theoretical_qty" NUMERIC DEFAULT 0.0;
+
+-- clean cash_control value
+update account_journal set cash_control = false where type='bank';
+update account_journal set cash_control = true where type='cash' and active=true;
+

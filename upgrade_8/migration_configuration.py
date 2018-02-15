@@ -33,6 +33,8 @@ INSTALL_MODULE_LIST = [
     'stock_picking_type_image',
     'grap_qweb_report',
     'pos_pricelist_fiscal_company',
+    'stock_picking_backorder_strategy',
+    'pos_cash_move_reason',
 
     # REPLACE
     # account_product_fiscal_classification
