@@ -48,4 +48,3 @@ AND sm.product_id = pp.id
 AND pt.id = pp.product_tmpl_id
 AND uom_pt.id = pt.uom_id
 AND uom_pt.category_id != uom_sm.category_id;
-
