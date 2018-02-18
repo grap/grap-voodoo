@@ -39,3 +39,13 @@ ALTER TABLE stock_inventory_line ADD COLUMN "theoretical_qty" NUMERIC DEFAULT 0.
 update account_journal set cash_control = false where type='bank';
 update account_journal set cash_control = true where type='cash' and active=true;
 
+-- Clean invalid stock move uom
+UPDATE stock_move sm
+set product_uom = pt.uom_id
+FROM product_uom uom_sm,  product_product pp, product_template pt, product_uom uom_pt
+WHERE uom_sm.id = sm.product_uom
+AND sm.product_id = pp.id
+AND pt.id = pp.product_tmpl_id
+AND uom_pt.id = pt.uom_id
+AND uom_pt.category_id != uom_sm.category_id;
+
