@@ -504,152 +504,152 @@ def fix_stock_settings(database):
     new_openerp = _connect_instance(
         ODOO_LOCAL_URL, database, ODOO_USER, ODOO_PASSWORD)
 
-#    for company in new_openerp.ResCompany.browse([]):
-#        _log(
-#            "INFO -Bug #1 Handling procurement Rule for company %s (#%d)" % (
-#                company.name, company.id))
-#        # Looking for warehouse
-#        warehouse_ids = new_openerp.StockWarehouse.search(
-#            [('company_id', '=', company.id)])
-#        if len(warehouse_ids) != 1:
-#            _log(
-#                "WARNING %d (!=1) Warehouses found for company %s (#%d)" % (
-#                    len(warehouse_ids), company.name, company.id))
-#            continue
-#        warehouse_id = warehouse_ids[0]
-#        # Looking for Customer Location
-#        customer_location_ids = new_openerp.StockLocation.search([
-#            ('company_id', '=', company.id),
-#            ('usage', '=', 'customer'),
-#            ])
-#        if len(customer_location_ids) != 1:
-#            _log(
-#                "WARNING %d (!=1) Customer Locations found for"
-#                " company %s (#%d)" % (
-#                    len(customer_location_ids), company.name, company.id))
-#            continue
-#        customer_location_id = customer_location_ids[0]
-#        MTS_rules = new_openerp.ProcurementRule.browse([
-#            ('warehouse_id', '=', warehouse_id),
-#            ('action', '=', 'move'),
-#            ('procure_method', '=', 'make_to_stock')])
-#        if len(MTS_rules) != 1:
-#            _log(
-#                "WARNING %d (!=1) rules MTS found for company %s (#%d)" % (
-#                    len(MTS_rules), company.name, company.id))
-#        else:
-#            rule = MTS_rules[0]
-#            # Fix MTS Rule
-#            rule.write({
-#                'name': "%s: Stock -> Clients" % (rule.warehouse_id.name),
-#                'location_id': customer_location_id,
-#            })
-#            # Fix associated Route
-#            rule.route_id.write({
-#                'name': "%s: Expedition en 1 etape" % (rule.warehouse_id.name),
-#                'company_id': rule.warehouse_id.company_id.id,
-#            })
-#            rule.picking_type_id.write({
-#                'name': "Bons de livraisons",
-#            })
-#            # Fix associated Stock Picking Type
+    for company in new_openerp.ResCompany.browse([]):
+        _log(
+            "INFO -Bug #1 Handling procurement Rule for company %s (#%d)" % (
+                company.name, company.id))
+        # Looking for warehouse
+        warehouse_ids = new_openerp.StockWarehouse.search(
+            [('company_id', '=', company.id)])
+        if len(warehouse_ids) != 1:
+            _log(
+                "WARNING %d (!=1) Warehouses found for company %s (#%d)" % (
+                    len(warehouse_ids), company.name, company.id))
+            continue
+        warehouse_id = warehouse_ids[0]
+        # Looking for Customer Location
+        customer_location_ids = new_openerp.StockLocation.search([
+            ('company_id', '=', company.id),
+            ('usage', '=', 'customer'),
+            ])
+        if len(customer_location_ids) != 1:
+            _log(
+                "WARNING %d (!=1) Customer Locations found for"
+                " company %s (#%d)" % (
+                    len(customer_location_ids), company.name, company.id))
+            continue
+        customer_location_id = customer_location_ids[0]
+        MTS_rules = new_openerp.ProcurementRule.browse([
+            ('warehouse_id', '=', warehouse_id),
+            ('action', '=', 'move'),
+            ('procure_method', '=', 'make_to_stock')])
+        if len(MTS_rules) != 1:
+            _log(
+                "WARNING %d (!=1) rules MTS found for company %s (#%d)" % (
+                    len(MTS_rules), company.name, company.id))
+        else:
+            rule = MTS_rules[0]
+            # Fix MTS Rule
+            rule.write({
+                'name': "%s: Stock -> Clients" % (rule.warehouse_id.name),
+                'location_id': customer_location_id,
+            })
+            # Fix associated Route
+            rule.route_id.write({
+                'name': "%s: Expedition en 1 etape" % (rule.warehouse_id.name),
+                'company_id': rule.warehouse_id.company_id.id,
+            })
+            rule.picking_type_id.write({
+                'name': "Bons de livraisons",
+            })
+            # Fix associated Stock Picking Type
 
-#        MTO_rules = new_openerp.ProcurementRule.browse([
-#            ('warehouse_id', '=', warehouse_id),
-#            ('action', '=', 'move'),
-#            ('procure_method', '=', 'make_to_order')])
-#        if len(MTS_rules) != 1:
-#            _log(
-#                "WARNING %d (!=1) rules MTO found for company %s (#%d)" % (
-#                    len(MTO_rules), company.name, company.id))
-#        else:
-#            rule = MTO_rules[0]
-#            # Fix MTO Rule
-#            rule.write({
-#                'name': "%s: Stock -> Clients MTO" % (rule.warehouse_id.name),
-#                'location_id': customer_location_id,
-#            })
+        MTO_rules = new_openerp.ProcurementRule.browse([
+            ('warehouse_id', '=', warehouse_id),
+            ('action', '=', 'move'),
+            ('procure_method', '=', 'make_to_order')])
+        if len(MTS_rules) != 1:
+            _log(
+                "WARNING %d (!=1) rules MTO found for company %s (#%d)" % (
+                    len(MTO_rules), company.name, company.id))
+        else:
+            rule = MTO_rules[0]
+            # Fix MTO Rule
+            rule.write({
+                'name': "%s: Stock -> Clients MTO" % (rule.warehouse_id.name),
+                'location_id': customer_location_id,
+            })
 
-#    for company in new_openerp.ResCompany.browse([]):
-#        _log(
-#            "INFO -Bug #2 Handling Stock Picking Type for company %s (#%d)" % (
-#                company.name, company.id))
-#        out_types = new_openerp.StockPickingType.browse([
-#            ('company_id', '=', company.id),
-#            ('code', '=', 'outgoing')])
-#        for out_type in out_types:
-#            new_loc = out_type.warehouse_id.wh_input_stock_loc_id
-#            out_type.write({
-#                'default_location_src_id': new_loc.id,
-#            })
+    for company in new_openerp.ResCompany.browse([]):
+        _log(
+            "INFO -Bug #2 Handling Stock Picking Type for company %s (#%d)" % (
+                company.name, company.id))
+        out_types = new_openerp.StockPickingType.browse([
+            ('company_id', '=', company.id),
+            ('code', '=', 'outgoing')])
+        for out_type in out_types:
+            new_loc = out_type.warehouse_id.wh_input_stock_loc_id
+            out_type.write({
+                'default_location_src_id': new_loc.id,
+            })
 
-#    warehouses = new_openerp.StockWarehouse.browse([])
-#    for warehouse in warehouses:
-#        _log(
-#            "INFO -Bug #3(+5) Handling View / Quality / Packing location"
-#            " for warehouse %d company %s (#%d)" % (
-#                warehouse.id, warehouse.company_id.name,
-#                warehouse.company_id.id))
-#        if warehouse.wh_qc_stock_loc_id:
-#            warehouse.wh_qc_stock_loc_id.write({
-#                'company_id': warehouse.company_id.id,
-#                'name': 'Controle qualite %s' % (warehouse.company_id.code),
-#            })
-#        else:
-#            _log("WARNING Quality Control location not found")
-#        if warehouse.wh_pack_stock_loc_id:
-#            warehouse.wh_pack_stock_loc_id.write({
-#                'company_id': warehouse.company_id.id,
-#                'name': 'Zone de colisage %s' % (warehouse.company_id.code),
-#            })
-#        else:
-#            _log("WARNING Pack location not found")
-#        if warehouse.view_location_id:
-#            if warehouse.view_location_id.id != 49:
-#                warehouse.view_location_id.write({
-#                    'company_id': warehouse.company_id.id,
-#                    'name': 'Vue %s' % (warehouse.company_id.code),
-#                })
-#                warehouse.wh_output_stock_loc_id.location_id =\
-#                    warehouse.view_location_id.id
-#            else:
-#                # TODO : change name removing '(NEW)'
-#                new_location = new_openerp.StockLocation.create({
-#                    'company_id': warehouse.company_id.id,
-#                    'usage': 'view',
-#                    'active': True,
-#                    'name': 'Vue %s (NEW)' % (warehouse.company_id.code),
-#                })
-#                warehouse.write({
-#                    'view_location_id': new_location.id,
-#                })
-#                warehouse.wh_input_stock_loc_id.location_id =new_location.id
-#                warehouse.wh_qc_stock_loc_id.location_id =new_location.id
-#                warehouse.wh_pack_stock_loc_id.location_id =new_location.id
-#                warehouse.wh_output_stock_loc_id.location_id =new_location.id
-#        else:
-#            _log("WARNING View location not found")
+    warehouses = new_openerp.StockWarehouse.browse([])
+    for warehouse in warehouses:
+        _log(
+            "INFO -Bug #3(+5) Handling View / Quality / Packing location"
+            " for warehouse %d company %s (#%d)" % (
+                warehouse.id, warehouse.company_id.name,
+                warehouse.company_id.id))
+        if warehouse.wh_qc_stock_loc_id:
+            warehouse.wh_qc_stock_loc_id.write({
+                'company_id': warehouse.company_id.id,
+                'name': 'Controle qualite %s' % (warehouse.company_id.code),
+            })
+        else:
+            _log("WARNING Quality Control location not found")
+        if warehouse.wh_pack_stock_loc_id:
+            warehouse.wh_pack_stock_loc_id.write({
+                'company_id': warehouse.company_id.id,
+                'name': 'Zone de colisage %s' % (warehouse.company_id.code),
+            })
+        else:
+            _log("WARNING Pack location not found")
+        if warehouse.view_location_id:
+            if warehouse.view_location_id.id != 49:
+                warehouse.view_location_id.write({
+                    'company_id': warehouse.company_id.id,
+                    'name': 'Vue %s' % (warehouse.company_id.code),
+                })
+                warehouse.wh_output_stock_loc_id.location_id =\
+                    warehouse.view_location_id.id
+            else:
+                # TODO : change name removing '(NEW)'
+                new_location = new_openerp.StockLocation.create({
+                    'company_id': warehouse.company_id.id,
+                    'usage': 'view',
+                    'active': True,
+                    'name': 'Vue %s (NEW)' % (warehouse.company_id.code),
+                })
+                warehouse.write({
+                    'view_location_id': new_location.id,
+                })
+                warehouse.wh_input_stock_loc_id.location_id =new_location.id
+                warehouse.wh_qc_stock_loc_id.location_id =new_location.id
+                warehouse.wh_pack_stock_loc_id.location_id =new_location.id
+                warehouse.wh_output_stock_loc_id.location_id =new_location.id
+        else:
+            _log("WARNING View location not found")
 
-#        new_stock_location_name = '%s - Stock' % (
-#                warehouse.company_id.code)
-#        if 'Stock' in warehouse.wh_input_stock_loc_id.name and\
-#                new_stock_location_name !=\
-#                warehouse.wh_input_stock_loc_id.name:
-#            _log("INFO - Renaming Stock : %s into %s" % (
-#                warehouse.wh_input_stock_loc_id.name,
-#                new_stock_location_name))
-#            warehouse.wh_input_stock_loc_id.name = new_stock_location_name
+        new_stock_location_name = '%s - Stock' % (
+                warehouse.company_id.code)
+        if 'Stock' in warehouse.wh_input_stock_loc_id.name and\
+                new_stock_location_name !=\
+                warehouse.wh_input_stock_loc_id.name:
+            _log("INFO - Renaming Stock : %s into %s" % (
+                warehouse.wh_input_stock_loc_id.name,
+                new_stock_location_name))
+            warehouse.wh_input_stock_loc_id.name = new_stock_location_name
 
-#        new_output_location_name = '%s - Sortie' % (
-#            warehouse.company_id.code)
-#        if 'Sortie' in warehouse.wh_output_stock_loc_id.name and\
-#                new_stock_location_name !=\
-#                warehouse.wh_output_stock_loc_id.name:
-#            _log("INFO - Renaming Sortie : %s into %s" % (
-#                warehouse.wh_output_stock_loc_id.name,
-#                new_stock_location_name))
-#            warehouse.wh_output_stock_loc_id.name = '%s - Sortie' % (
-#                warehouse.company_id.code)
+        new_output_location_name = '%s - Sortie' % (
+            warehouse.company_id.code)
+        if 'Sortie' in warehouse.wh_output_stock_loc_id.name and\
+                new_stock_location_name !=\
+                warehouse.wh_output_stock_loc_id.name:
+            _log("INFO - Renaming Sortie : %s into %s" % (
+                warehouse.wh_output_stock_loc_id.name,
+                new_stock_location_name))
+            warehouse.wh_output_stock_loc_id.name = '%s - Sortie' % (
+                warehouse.company_id.code)
 
     # Fix PoS Picking Types
     picking_types = new_openerp.StockPickingType.browse([

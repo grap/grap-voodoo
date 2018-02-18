@@ -1,5 +1,7 @@
 -- Delete all views from 'product.product'
 delete from ir_ui_view where model = 'product.product';
+delete from ir_ui_view where model = 'pos.config';
+delete from ir_ui_view where model = 'pos.order';
 
 -- disable new useless stock locations
 update  stock_location set active = false  where company_id is null;
