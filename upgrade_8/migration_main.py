@@ -122,8 +122,8 @@ def run_step(step, database, backup_step):
         finally:
             kill_process(proc)
 
-    # Clean Database
-    clean_database(database, step)
+#    # Clean Database
+#    clean_database(database, step)
 
 # ------------
 # -- Main Part
