@@ -7,7 +7,7 @@ delete from ir_ui_view where model = 'pos.order';
 update  stock_location set active = false  where company_id is null;
 
 -- COMMENTED, because seems to break stock location parent concept.
----- drop link between "groupes" location and "activities" locations
+---- drop link between groupes location and activities locations
 --update stock_location set location_id = null where location_id in (select id from stock_location where company_id = 2);
 
 

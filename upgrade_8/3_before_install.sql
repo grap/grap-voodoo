@@ -3,7 +3,7 @@ DELETE
 FROM stock_picking_type
 WHERE company_id is null and name='PoS Orders';
 
--- Disable stock_picking_type "internal"
+-- Disable stock_picking_type internal
 UPDATE stock_picking_type
 SET active=false
 WHERE id not in (
