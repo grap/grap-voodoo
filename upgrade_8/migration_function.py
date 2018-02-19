@@ -89,7 +89,9 @@ def execute_sql_step_file(database, step):
     step_name = STEP_DICT[step]['name']
     sql_file = '%d_before_%s.sql' % (step, step_name)
     if os.path.exists(sql_file):
-        sql_result_file = "%szz_%s__output_%s" % (
+        sql_request_single = "%szz_%s__input_%s" % (
+            TEMPORARY_FOLDER, database, sql_file)
+        sql_result_single = "%szz_%s__output_%s" % (
             TEMPORARY_FOLDER, database, sql_file)
         sql_commands = []
         current_command = []
@@ -104,12 +106,15 @@ def execute_sql_step_file(database, step):
                     current_command = []
             for sql_command in sql_commands:
                 _log("Execute SQL Request ... %s" %(sql_command))
+                f_req = open(sql_request_single, 'w')
+                f_req.write(sql_command)
+                f_req.close()
                 _bash_execute(
-                    "psql -c \"%s\" %s -o %s" % (
-                        sql_command, database, sql_result_file),
+                    "psql -f %s -d %s -o %s" % (
+                        sql_request_single, database, sql_result_single),
                     user='postgres', log=False)
                 try:
-                    with open(sql_result_file) as f_sql:
+                    with open(sql_result_single) as f_res:
                         sql_res = f_sql.readlines()
                         result = ' '.join(
                             [x.replace('\n', '') for x in sql_res])
