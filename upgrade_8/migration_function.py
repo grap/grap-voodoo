@@ -115,7 +115,7 @@ def execute_sql_step_file(database, step):
                     user='postgres', log=False)
                 try:
                     with open(sql_result_single) as f_res:
-                        sql_res = f_sql.readlines()
+                        sql_res = f_res.readlines()
                         result = ' '.join(
                             [x.replace('\n', '') for x in sql_res])
                         _log("> RESULT : %s" % result)
