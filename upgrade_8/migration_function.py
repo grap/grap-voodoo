@@ -25,9 +25,9 @@ ODOO_RUN_SCRIPT = "../bin/start_openerp --log-level {log_level} --debug"
 
 STEP_DICT = {
     1: {'name': 'upgrade_7_8', 'backup_db': True, 'clean_after': True},
-    2: {'name': 'update', 'backup_db': True, 'clean_after': False},
-    3: {'name': 'install', 'backup_db': False, 'clean_after': False},
-    4: {'name': 'uninstall', 'backup_db': False, 'clean_after': False},
+    2: {'name': 'update', 'backup_db': True, 'clean_after': True},
+    3: {'name': 'install', 'backup_db': False, 'clean_after': True},
+    4: {'name': 'uninstall', 'backup_db': True, 'clean_after': True},
     5: {'name': 'orm_operation', 'backup_db': False, 'clean_after': True},
 }
 
@@ -194,7 +194,7 @@ def update_instance(database, module_list, log_level):
 def run_instance(log_level):
     res = _bash_subprocess(
         ODOO_RUN_SCRIPT.format(log_level=log_level), user='odoo')
-    time.sleep(5)
+    time.sleep(10)
     return res
 
 
@@ -708,59 +708,59 @@ def fix_stock_settings(database):
             ', '.join([str(x.id) for x in picking_types])))
     picking_types.write({'active': False})
 
-#    # Get Customer Locations
-#    locations = new_openerp.StockLocation.browse([
-#        ('usage', '=', 'customer')])
-#    _log(
-#        "INFO - Set False and renaming to all the Customer"
-#        " locations (%d)" % len(locations))
-#    for location in locations:
-#        location.write({
-#            'location_id': False,
-#            'name': '%s - Clients' % (location.company_id.code),
-#        })
+    # Get Customer Locations
+    locations = new_openerp.StockLocation.browse([
+        ('usage', '=', 'customer')])
+    _log(
+        "INFO - Set False and renaming to all the Customer"
+        " locations (%d)" % len(locations))
+    for location in locations:
+        location.write({
+            'location_id': False,
+            'name': '%s - Clients' % (location.company_id.code),
+        })
 
-#    # Get Supplier Locations
-#    locations = new_openerp.StockLocation.browse([
-#        ('usage', '=', 'supplier')])
-#    _log(
-#        "INFO - Set False and renaming to all the Supplier"
-#        " locations (%d)" % len(locations))
-#    for location in locations:
-#        location.write({
-#            'location_id': False,
-#            'name': '%s - Fournisseurs' % (location.company_id.code),
-#        })
+    # Get Supplier Locations
+    locations = new_openerp.StockLocation.browse([
+        ('usage', '=', 'supplier')])
+    _log(
+        "INFO - Set False and renaming to all the Supplier"
+        " locations (%d)" % len(locations))
+    for location in locations:
+        location.write({
+            'location_id': False,
+            'name': '%s - Fournisseurs' % (location.company_id.code),
+        })
 
-#    # Get Production Locations
-#    locations = new_openerp.StockLocation.browse([
-#        ('usage', '=', 'production')])
-#    _log(
-#        "INFO - Set False and renaming to all the Production"
-#        " locations (%d)" % len(locations))
-#    for location in locations:
-#        location.write({
-#            'location_id': False,
-#            'name': '%s - Production' % (location.company_id.code),
-#        })
+    # Get Production Locations
+    locations = new_openerp.StockLocation.browse([
+        ('usage', '=', 'production')])
+    _log(
+        "INFO - Set False and renaming to all the Production"
+        " locations (%d)" % len(locations))
+    for location in locations:
+        location.write({
+            'location_id': False,
+            'name': '%s - Production' % (location.company_id.code),
+        })
 
-#    # Get Procurement Locations
-#    locations = new_openerp.StockLocation.browse([
-#        ('usage', '=', 'procurement')])
-#    _log(
-#        "INFO - Set False and renaming to all the Procurement"
-#        " locations (%d)" % len(locations))
-#    for location in locations:
-#        location.write({
-#            'location_id': False,
-#            'name': '%s - Approvisionnement' % (location.company_id.code),
-#        })
+    # Get Procurement Locations
+    locations = new_openerp.StockLocation.browse([
+        ('usage', '=', 'procurement')])
+    _log(
+        "INFO - Set False and renaming to all the Procurement"
+        " locations (%d)" % len(locations))
+    for location in locations:
+        location.write({
+            'location_id': False,
+            'name': '%s - Approvisionnement' % (location.company_id.code),
+        })
 
-#    # Get Transit Locations
-#    locations = new_openerp.StockLocation.browse([
-#        ('usage', '=', 'transit')])
-#    _log("INFO - Set False to all the Transit locations (%d)" % len(locations))
-#    locations.write({'location_id': False})
+    # Get Transit Locations
+    locations = new_openerp.StockLocation.browse([
+        ('usage', '=', 'transit')])
+    _log("INFO - Set False to all the Transit locations (%d)" % len(locations))
+    locations.write({'location_id': False})
 
 
 def _log(text, error=False):
