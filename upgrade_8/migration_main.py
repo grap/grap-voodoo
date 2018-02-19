@@ -113,17 +113,17 @@ def run_step(step, database, backup_step):
         try:
             # Fix Stock Settings
             fix_stock_settings(database)
-#            # Create Inventories, to populate quants
-#            create_inventories(database)
-#            # Recreate Tiles
-#            create_tiles(database)
+            # Create Inventories, to populate quants
+            create_inventories(database)
+            # Recreate Tiles
+            create_tiles(database)
         except Exception as e:
             _log("ERROR during the execution", e)
         finally:
             kill_process(proc)
 
-#    # Clean Database
-#    clean_database(database, step)
+    # Clean Database
+    clean_database(database, step)
 
 # ------------
 # -- Main Part

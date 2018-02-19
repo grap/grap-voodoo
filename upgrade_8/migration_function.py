@@ -89,10 +89,33 @@ def execute_sql_step_file(database, step):
     step_name = STEP_DICT[step]['name']
     sql_file = '%d_before_%s.sql' % (step, step_name)
     if os.path.exists(sql_file):
-        return _bash_execute(
-            "psql -f %s %s -o %szz_%s__output_%s" % (
-                sql_file, database, TEMPORARY_FOLDER, database, sql_file),
-            user='postgres')
+        sql_result_file = "%szz_%s__output_%s" % (
+            TEMPORARY_FOLDER, database, sql_file)
+        sql_commands = []
+        current_command = []
+        with open(sql_file) as f:
+            for line in f:
+                line = line.strip().replace('\n', '')
+                if not line or line.startswith('--'):
+                    continue
+                current_command.append(line)
+                if line.endswith(';'):
+                    sql_commands.append(' '.join(current_command))
+                    current_command = []
+            for sql_command in sql_commands:
+                _log("Execute SQL Request ... %s" %(sql_command))
+                _bash_execute(
+                    "psql -c \"%s\" %s -o %s" % (
+                        sql_command, database, sql_result_file),
+                    user='postgres', log=False)
+                try:
+                    with open(sql_result_file) as f_sql:
+                        sql_res = f_sql.readlines()
+                        result = ' '.join(
+                            [x.replace('\n', '') for x in sql_res])
+                        _log("> RESULT : %s" % result)
+                finally:
+                    pass
 
 
 def create_new_database(target_database, step):
@@ -610,8 +633,9 @@ def fix_stock_settings(database):
                     'company_id': warehouse.company_id.id,
                     'name': 'Vue %s' % (warehouse.company_id.code),
                 })
-                warehouse.wh_output_stock_loc_id.location_id =\
-                    warehouse.view_location_id.id
+                warehouse.wh_output_stock_loc_id.write({
+                    'location_id': warehouse.view_location_id.id,
+                })
             else:
                 # TODO : change name removing '(NEW)'
                 new_location = new_openerp.StockLocation.create({

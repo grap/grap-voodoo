@@ -35,6 +35,9 @@ INSTALL_MODULE_LIST = [
     'pos_pricelist_fiscal_company',
     'stock_picking_backorder_strategy',
     'pos_cash_move_reason',
+    'pos_to_weight_by_product_uom',
+    'product_sale_taxe_price_included',
+    'product_uom_use_type',
 
     # REPLACE
     # account_product_fiscal_classification
