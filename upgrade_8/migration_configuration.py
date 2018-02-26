@@ -38,6 +38,7 @@ INSTALL_MODULE_LIST = [
     'pos_to_weight_by_product_uom',
     'product_sale_taxe_price_included',
     'product_uom_use_type',
+    'grap_openupgrade_to_8',
 
     # REPLACE
     # account_product_fiscal_classification

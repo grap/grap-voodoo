@@ -27,8 +27,9 @@ STEP_DICT = {
     1: {'name': 'upgrade_7_8', 'backup_db': True, 'clean_after': True},
     2: {'name': 'update', 'backup_db': True, 'clean_after': True},
     3: {'name': 'install', 'backup_db': False, 'clean_after': True},
-    4: {'name': 'uninstall', 'backup_db': True, 'clean_after': True},
-    5: {'name': 'orm_operation', 'backup_db': False, 'clean_after': True},
+    4: {'name': 'uninstall', 'backup_db': False, 'clean_after': True},
+    5: {'name': 'update_2', 'backup_db': False, 'clean_after': True},
+    6: {'name': 'orm_operation', 'backup_db': True, 'clean_after': True},
 }
 
 
@@ -85,14 +86,42 @@ def set_upgrade_mode(upgrade_mode):
         os.rename(ODOO_FOLDER_BACKUP, ODOO_FOLDER_NORMAL)
 
 
+def execute_sql_request(database, sql_request, end_filename=''):
+    _log("Execute SQL Request ... %s" %(sql_request))
+    sql_request_filename = "%szz_%s__input_%s" % (
+        TEMPORARY_FOLDER, database, end_filename)
+    sql_result_filename = "%szz_%s__output_%s" % (
+        TEMPORARY_FOLDER, database, end_filename)
+
+    f_req = open(sql_request_filename, 'w')
+    f_req.write(sql_request)
+    f_req.close()
+    ok = False
+    try:
+        _bash_execute(
+            "psql -f %s -d %s -o %s" % (
+                sql_request_filename, database, sql_result_filename),
+            user='postgres', log=False)
+        ok = True
+    except Exception as e:
+        _log("ERROR", e)
+    finally:
+        os.remove(sql_request_filename)
+    if ok:
+        try:
+            with open(sql_result_filename) as f_res:
+                sql_res = f_res.readlines()
+                result = ' '.join(
+                    [x.replace('\n', '') for x in sql_res])
+                _log("> RESULT : %s" % result)
+        finally:
+            os.remove(sql_result_filename)
+
+
 def execute_sql_step_file(database, step):
     step_name = STEP_DICT[step]['name']
     sql_file = '%d_before_%s.sql' % (step, step_name)
     if os.path.exists(sql_file):
-        sql_request_single = "%szz_%s__input_%s" % (
-            TEMPORARY_FOLDER, database, sql_file)
-        sql_result_single = "%szz_%s__output_%s" % (
-            TEMPORARY_FOLDER, database, sql_file)
         sql_commands = []
         current_command = []
         with open(sql_file) as f:
@@ -105,22 +134,7 @@ def execute_sql_step_file(database, step):
                     sql_commands.append(' '.join(current_command))
                     current_command = []
             for sql_command in sql_commands:
-                _log("Execute SQL Request ... %s" %(sql_command))
-                f_req = open(sql_request_single, 'w')
-                f_req.write(sql_command)
-                f_req.close()
-                _bash_execute(
-                    "psql -f %s -d %s -o %s" % (
-                        sql_request_single, database, sql_result_single),
-                    user='postgres', log=False)
-                try:
-                    with open(sql_result_single) as f_res:
-                        sql_res = f_res.readlines()
-                        result = ' '.join(
-                            [x.replace('\n', '') for x in sql_res])
-                        _log("> RESULT : %s" % result)
-                finally:
-                    pass
+                execute_sql_request(database, sql_command, sql_file)
 
 
 def create_new_database(target_database, step):
@@ -162,8 +176,7 @@ def backup_database(database, step):
             database.replace('_current', ''), step, step_name)
         # Search for previous backup
         _bash_execute(
-            "psql -l -o %s" % TEMPORARY_FILE_DB_LIST, user='postgres',
-            log=False)
+            "psql -l -o %s" % TEMPORARY_FILE_DB_LIST, user='postgres')
         file_database_list = open(TEMPORARY_FILE_DB_LIST, 'r')
         content = file_database_list.readlines()
         found = ' %s ' % backup in ''.join(content)
@@ -531,6 +544,9 @@ def create_tiles(database):
 def fix_stock_settings(database):
     new_openerp = _connect_instance(
         ODOO_LOCAL_URL, database, ODOO_USER, ODOO_PASSWORD)
+
+    # Force recomputing stock location parents and remove locations
+    new_openerp.StockLocation.recompute_parent_store()
 
     for company in new_openerp.ResCompany.browse([]):
         _log(

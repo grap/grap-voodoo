@@ -23,7 +23,8 @@ parser.add_option(
     "2: 'Update All with OCB' Step\n"
     "3: 'Install New Modules' Step\n"
     "4: 'Uninstall Obsolete Modules' Step\n"
-    "5: 'ORM operation' Step\n")
+    "5: 'Update All with OCB' (2) Step\n"
+    "6: 'ORM operation' Step\n")
 parser.add_option(
     "-d", "--database", dest="database",
     help="Database to use:\n"
@@ -108,6 +109,11 @@ def run_step(step, database, backup_step):
             kill_process(proc)
 
     elif step == 5:
+        # Update With OCB
+        set_upgrade_mode(False)
+        update_instance(database, 'all', target_log_level)
+
+    elif step == 6:
         set_upgrade_mode(False)
         proc = run_instance(target_log_level)
         try:

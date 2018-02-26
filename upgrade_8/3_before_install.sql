@@ -33,3 +33,8 @@ UPDATE product_product
         SELECT id
         FROM product_template
         WHERE image is not null);
+
+
+-- Fast creation of the module product_template.to_print
+ALTER TABLE product_template ADD COLUMN to_print bool DEFAULT False;
+

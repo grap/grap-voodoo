@@ -4,7 +4,7 @@ import sys
 # in /bin/start_openerp
 sys.path[0:0] = [
     '../eggs/ERPpeek-1.6.3-py2.7.egg',
-    '../eggs/psutil-5.2.2-py2.7-linux-x86_64.egg',
+    '../eggs/psutil-5.4.3-py2.7-linux-x86_64.egg',
 ]
 import erppeek
 import psutil
