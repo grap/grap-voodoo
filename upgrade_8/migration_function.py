@@ -783,6 +783,14 @@ def fix_stock_settings(database):
     _log("INFO - Set False to all the Transit locations (%d)" % len(locations))
     locations.write({'location_id': False})
 
+    locations = new_openerp.StockLocation.browse([])
+    for location in locations:
+        if location.location_id and\
+                location.company_id.id != location.location_id.company_id.id:
+            _log("INFO - Set False to parent location of location #%d" % (
+                location.id))
+            location.location_id = False
+
 
 def _log(text, error=False):
     try:

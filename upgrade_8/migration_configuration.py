@@ -37,6 +37,7 @@ INSTALL_MODULE_LIST = [
     'pos_cash_move_reason',
     'pos_to_weight_by_product_uom',
     'product_sale_taxe_price_included',
+    'product_sale_tax_price_included',
     'product_uom_use_type',
     'grap_openupgrade_to_8',
     'duplication_account_invoice',
