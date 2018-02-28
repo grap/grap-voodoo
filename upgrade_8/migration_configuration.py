@@ -39,6 +39,8 @@ INSTALL_MODULE_LIST = [
     'product_sale_taxe_price_included',
     'product_uom_use_type',
     'grap_openupgrade_to_8',
+    'duplication_account_invoice',
+    'duplication_sale_order',
 
     # REPLACE
     # account_product_fiscal_classification
@@ -108,6 +110,8 @@ UNINSTALL_MODULE_LIST = [
     'grap_change_account_move_line',
     'stock_inventory_sum_duplicates',
     'grap_change_print',
+    'sale_recurring_order_duplication',
+    'account_recurring_invoice_duplication',
 ]
 
 CHECK_MODULE_LIST = ['point_of_sale']
