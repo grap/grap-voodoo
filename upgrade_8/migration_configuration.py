@@ -20,7 +20,6 @@ INSTALL_MODULE_LIST = [
     'account_invoice_merge_purchase',
     'account_invoice_supplierinfo_update',
     'account_invoice_supplierinfo_update_discount',
-    'purchase_supplier_rounding_method',
     'product_margin_classification',
     'stock_disable_barcode_interface',
     'product_supplierinfo_tree_price_info',
@@ -42,6 +41,17 @@ INSTALL_MODULE_LIST = [
     'grap_openupgrade_to_8',
     'duplication_account_invoice',
     'duplication_sale_order',
+    'pos_sector',
+    'pos_copy_order_opened_session',
+    'pos_picking_load',
+    'account_invoice_triple_discount',
+    'product_supplierinfo_triple_discount',
+    'purchase_triple_discount',
+    'intercompany_trade_account_invoice_pricelist',
+    'sale_order_line_price_subtotal_gross',
+    'account_invoice_line_price_subtotal_gross',
+
+#    'purchase_supplier_rounding_method', # TODO CHECK Before if it works with triple_discount
 
     # REPLACE
     # account_product_fiscal_classification
