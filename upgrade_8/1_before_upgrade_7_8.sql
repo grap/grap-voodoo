@@ -1,3 +1,7 @@
+-- ----------------------------------------------------------------------------
+-- Migration Part
+-- ----------------------------------------------------------------------------
+
 -- Move fields from pos_tax to grap_change_account_move_line
 -- To allow to uninstall correctly pos_tax
 UPDATE ir_model_data
@@ -9,35 +13,21 @@ WHERE
 -- Disable all ir cron
 UPDATE ir_cron
 SET active = false
-where id != 1;
-
--- Delete obsolete Tiles
-DELETE
-FROM tile_tile
-WHERE model_id in (
-    SELECT id
-    FROM ir_model
-    WHERE model in ('stock.picking.in', 'stock.picking.out')
-    );
+WHERE id != 1;
 
 -- Delete all tiles
 DELETE
 FROM tile_tile;
 
 -- Delete draft inventories;
-delete
+DELETE
 FROM stock_inventory
 WHERE state = 'draft';
 
 -- update ir sequence because OpenUpgrade try to recreate one, generating an error...
-update ir_sequence_type set code='stock.orderpoint.openupgrade_7_8' where code = 'stock.orderpoint';
-
--- Pre create field stock_inventory_line.theoretical_qty
-ALTER TABLE stock_inventory_line ADD COLUMN theoretical_qty NUMERIC DEFAULT 0.0;
-
--- clean cash_control value
-update account_journal set cash_control = false where type='bank';
-update account_journal set cash_control = true where type='cash' and active=true;
+UPDATE ir_sequence_type
+SET code='stock.orderpoint.openupgrade_7_8'
+WHERE code = 'stock.orderpoint';
 
 -- Clean invalid stock move uom
 UPDATE stock_move sm
@@ -48,3 +38,45 @@ AND sm.product_id = pp.id
 AND pt.id = pp.product_tmpl_id
 AND uom_pt.id = pt.uom_id
 AND uom_pt.category_id != uom_sm.category_id;
+
+-- clean cash_control value
+UPDATE account_journal
+SET cash_control = false
+WHERE type='bank';
+
+UPDATE account_journal
+SET cash_control = true
+WHERE
+    type='cash'
+    AND active=true;
+
+-- ----------------------------------------------------------------------------
+-- New Fields Part - Fast Creation
+-- ----------------------------------------------------------------------------
+-- FAST CREATION - odoo.stock
+ALTER TABLE stock_inventory_line
+ADD COLUMN theoretical_qty NUMERIC DEFAULT 0.0;
+
+-- FAST CREATION - product_margin_classification
+ALTER TABLE product_template
+ADD COLUMN theoretical_price NUMERIC DEFAULT 0.0;
+
+ALTER TABLE product_template
+ADD COLUMN theoretical_difference NUMERIC DEFAULT 0.0;
+
+ALTER TABLE product_template
+ADD COLUMN margin_state CHAR DEFAULT 'ok';
+
+-- FAST CREATION - product_print_category
+ALTER TABLE product_template
+ADD COLUMN to_print bool DEFAULT False;
+
+-- FAST CREATION - pos_default_empty_image
+ALTER TABLE product_product ADD COLUMN has_image bool DEFAULT False;
+
+UPDATE product_product
+SET has_image = true
+WHERE product_tmpl_id in (
+    SELECT id
+    FROM product_template
+    WHERE image is not null);

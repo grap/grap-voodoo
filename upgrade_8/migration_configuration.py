@@ -35,7 +35,6 @@ INSTALL_MODULE_LIST = [
     'stock_picking_backorder_strategy',
     'pos_cash_move_reason',
     'pos_to_weight_by_product_uom',
-    'product_sale_taxe_price_included',
     'product_sale_tax_price_included',
     'product_uom_use_type',
     'grap_openupgrade_to_8',
@@ -49,7 +48,10 @@ INSTALL_MODULE_LIST = [
     'purchase_triple_discount',
     'intercompany_trade_account_invoice_pricelist',
     'sale_order_line_price_subtotal_gross',
-    'account_invoice_line_price_subtotal_gross',
+    'pos_payment_terminal',
+    'pos_customer_display',
+    'account_invoice_supplierinfo_update_triple_discount',
+#    'account_invoice_line_price_subtotal_gross', # PUTAIN LONG ! A TESTER
 
 #    'purchase_supplier_rounding_method', # TODO CHECK Before if it works with triple_discount
 
