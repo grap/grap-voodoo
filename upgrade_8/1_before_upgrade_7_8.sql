@@ -80,3 +80,19 @@ WHERE product_tmpl_id in (
     SELECT id
     FROM product_template
     WHERE image is not null);
+
+
+-- ----------------------------------------------------------------------------
+-- XML ID Part - Move from module to another
+-- ----------------------------------------------------------------------------
+
+sale_food -> grap_qweb_report
+
+model : product.pricetag.type
+fields : company_id, name, color
+
+model : product.product
+fields : pricetag_type_id
+
+model : res.company
+fields : pricetag_color

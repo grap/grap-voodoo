@@ -18,3 +18,14 @@ update pos_config set iface_create_confirmed_sale_order = false;
 -- INITIALIZATION : pos_picking_load
 UPDATE pos_config
 SET iface_load_picking = false;
+
+-- INITIALIZATION : product_uom_use_type
+UPDATE product_uom
+SET use_type = 'purchase';
+
+UPDATE product_uom
+SET use_type = 'sale' where name in ('01kg', '1PCE', 'Heure', 'Jour', 'km', 'Repas');
+
+UPDATE product_uom_categ
+set to_weigh = true
+WHERE name = 'Weight';

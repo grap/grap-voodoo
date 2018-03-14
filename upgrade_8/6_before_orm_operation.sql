@@ -19,6 +19,22 @@ WHERE gid = (
             'admin@grap.coop')
         );
 
+-- Give Access to 'Manage SQL Request' for admin users
+INSERT INTO res_groups_users_rel (uid, gid)
+    SELECT
+        uid,
+        (
+        SELECT res_id
+        FROM ir_model_data
+        WHERE module = 'sql_request_abstract'
+        AND name = 'group_sql_request_manager'
+        ) as gid
+    FROM res_groups_users_rel
+    WHERE gid IN (
+        SELECT res_id
+        FROM ir_model_data WHERE module = 'base' AND name = 'group_no_one')
+    AND uid not in (1);
+
 -- ----------------------------------------------------------------------------
 -- New Behaviour Part
 -- ----------------------------------------------------------------------------
