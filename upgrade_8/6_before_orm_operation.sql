@@ -46,3 +46,7 @@ SET internal_account_id = default_debit_account_id
 WHERE
     active = true
     AND type IN ('cash', 'bank');
+
+-- ----------------------------------------------------------------------------
+-- Various Part
+-- ----------------------------------------------------------------------------

@@ -125,6 +125,8 @@ UNINSTALL_MODULE_LIST = [
     'grap_change_print',
     'sale_recurring_order_duplication',
     'account_recurring_invoice_duplication',
+    'grap_print_product',
+    'grap_reporting',
 ]
 
 CHECK_MODULE_LIST = ['point_of_sale']

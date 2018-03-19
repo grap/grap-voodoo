@@ -85,14 +85,16 @@ WHERE product_tmpl_id in (
 -- ----------------------------------------------------------------------------
 -- XML ID Part - Move from module to another
 -- ----------------------------------------------------------------------------
+-- Move from 'sale_food' (grap-odoo-business) to 'grap_qweb_report' (odoo-addons-grap)
+UPDATE ir_model_data
+SET module='grap_qweb_report'
+WHERE module='sale_food'
+AND model in ('ir.model', 'ir.model.fields')
+AND (name like 'field_product_pricetag_type%' or name in('model_product_pricetag_type', 'field_res_company_pricetag_color', 'field_product_product_pricetag_type_id'));
 
-sale_food -> grap_qweb_report
-
-model : product.pricetag.type
-fields : company_id, name, color
-
-model : product.product
-fields : pricetag_type_id
-
-model : res.company
-fields : pricetag_color
+-- Move from 'grap_print_product' (odoo-addons-grap) to 'product_ean13_image' (grap-odoo-incubator)
+UPDATE ir_model_data
+SET module='product_ean13_image'
+WHERE module='grap_print_product'
+AND model in ('ir.model.fields')
+AND name in('field_product_product_ean13_image');
