@@ -76,7 +76,7 @@ AND pt.categ_id = pc.id;
 UPDATE product_product pp
 SET state_id = rcd.state_id
 FROM res_country_department rcd
-WHERE rcd.id = pp.department_id
+WHERE rcd.id = pp.department_id;
 
 -- INITIALIZATION : product_print_category
 UPDATE res_company
