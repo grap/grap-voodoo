@@ -72,3 +72,29 @@ UPDATE product_product pp
 FROM product_template pt, product_category pc
 WHERE pp.product_tmpl_id = pt.id
 AND pt.categ_id = pc.id;
+
+UPDATE product_product pp
+SET state_id = rcd.state_id
+FROM res_country_department rcd
+WHERE rcd.id = pp.department_id
+
+-- INITIALIZATION : product_print_category
+UPDATE res_company
+    SET print_category_id = (SELECT res_id FROM ir_model_data where name = 'category_label_normal')
+WHERE code in ('3PP', 'BSG', 'CDA', 'CHE', 'COU', 'CRB', 'EDC', 'KNL', 'LOC', 'MAM', 'PZI', 'RES');
+
+UPDATE res_company
+    SET print_category_id = (SELECT res_id FROM ir_model_data where name = 'category_label_big')
+WHERE code in ('VEV');
+
+UPDATE res_company
+    SET print_category_id = (SELECT res_id FROM ir_model_data where name = 'category_label_small')
+WHERE code in ('HAL');
+
+UPDATE product_template pt
+    SET print_category_id = rc.print_category_id
+FROM res_company rc, product_product pp
+WHERE rc.id = pt.company_id
+AND pp.product_tmpl_id = pt.id
+AND rc.print_category_id IS NOT null
+AND pp.pricetag_state != '3';
