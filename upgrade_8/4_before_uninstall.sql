@@ -29,3 +29,46 @@ SET use_type = 'sale' where name in ('01kg', '1PCE', 'Heure', 'Jour', 'km', 'Rep
 UPDATE product_uom_categ
 set to_weigh = true
 WHERE name = 'Weight';
+
+-- INITIALIZATION : sale_food
+UPDATE product_category
+SET is_food = false;
+
+UPDATE product_category
+SET is_food = true
+WHERE id not in (
+      223   /* Revente / DIVERS / DIVERS */
+    , 232   /* Matières Premières / DIVERS */
+
+    , 150   /* Revente / animaux /                      DIVERS animaux */
+    , 97    /* Revente / animaux /                      nourriture */
+    , 191   /* Revente / artisanat /                    DIVERS artisanat */
+    , 146   /* Revente / contenants & emballages /      bocaux */
+    , 147   /* Revente / contenants & emballages /      DIVERS contenants & emballages */
+    , 145   /* Revente / contenants & emballages /      sacs */
+    , 86    /* Revente / contenants & emballages /      Seaux */
+    , 123   /* Revente / jardinierie /                  graines */
+    , 158   /* Revente / papeterie & presse /           DIVERS papeterie & presse */
+    , 156   /* Revente / papeterie & presse /           livres */
+    , 154   /* Revente / papeterie & presse /           papeterie */
+    , 114   /* Revente / papeterie & presse /           presse */
+    , 160   /* Revente / ustensiles /                   DIVERS ustensiles */
+    , 152   /* Revente / ustensiles /                   ustensiles de cuisine */
+    , 87    /* Revente / hygiène /                      huiles essentielles */
+    , 6     /* Revente / hygiène /                      savons & shampoings */
+    , 115   /* Revente / hygiène /                      cosmétiques */
+    , 113   /* Revente / hygiène /                      bébé */
+    , 100   /* Revente / hygiène /                      DIVERS hygiène */
+    , 196   /* Revente / hygiène /                      hygiène féminine */
+    , 195   /* Revente / hygiène /                      soin de la personne */
+    , 92    /* Revente / entretien /                    DIVERS entretien */
+    , 229   /* Revente / Surgelé /                      DIVERS surgelé */
+    , 248   /* Spécial / DIVERS /                       Consigne Clients & Fournisseurs */
+    , 187   /* Spécial / DIVERS /                       DIVERS */
+);
+
+UPDATE product_product pp
+    SET is_food = pc.is_food
+FROM product_template pt, product_category pc
+WHERE pp.product_tmpl_id = pt.id
+AND pt.categ_id = pc.id;

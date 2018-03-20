@@ -50,3 +50,10 @@ WHERE
 -- ----------------------------------------------------------------------------
 -- Various Part
 -- ----------------------------------------------------------------------------
+
+-- Change
+UPDATE ir_filters
+SET domain = '[(''state'', ''in'', [''draft'', ''confirm''])]',
+name = 'En brouillon ou en cours'
+WHERE name = 'En brouillon'
+and model_id = 'stock.inventory';
