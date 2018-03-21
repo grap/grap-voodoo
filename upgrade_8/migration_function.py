@@ -494,13 +494,10 @@ def create_tiles(database):
     old_tiles = old_openerp.TileTile.browse([])
     for old_tile in old_tiles:
         old_model = old_tile.model_id.model
-        if old_tile.id in (13, 14, 42, 43, 72) or\
-                'Balance Facture Frs' in old_tile.name:
-            _log(
-                "INFO tile %d skipped. Big tile. about invoices. %s" % (
-                    old_tile.id, old_model))
-            continue
-        if not len(new_openerp.IrModel.browse([('model', '=', old_model)])):
+        if (
+                not len(new_openerp.IrModel.browse(
+                    [('model', '=', old_model)])) or
+                    old_model in ['stock.picking.out', 'stock.picking.in']):
             _log(
                 "INFO tile %d skipped. Model '%s' not found" % (
                     old_tile.id, old_model))
