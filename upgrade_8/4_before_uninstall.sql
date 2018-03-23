@@ -16,8 +16,17 @@ update pos_config set iface_create_draft_sale_order = false;
 update pos_config set iface_create_confirmed_sale_order = false;
 
 -- INITIALIZATION : pos_picking_load
-UPDATE pos_config
-SET iface_load_picking = false;
+UPDATE pos_config pc
+SET iface_load_picking = false
+FROM res_company rc
+WHERE pc.company_id = rc.id
+AND rc.code != 'PZI';
+
+UPDATE pos_config pc
+SET iface_load_picking = true
+FROM res_company rc
+WHERE pc.company_id = rc.id
+AND rc.code = 'PZI';
 
 -- INITIALIZATION : product_uom_use_type
 UPDATE product_uom
@@ -98,3 +107,5 @@ WHERE rc.id = pt.company_id
 AND pp.product_tmpl_id = pt.id
 AND rc.print_category_id IS NOT null
 AND pp.pricetag_state != '3';
+
+

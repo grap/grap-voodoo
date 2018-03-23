@@ -51,9 +51,17 @@ WHERE
 -- Various Part
 -- ----------------------------------------------------------------------------
 
--- Change
+-- Change filter of stock.inventory
 UPDATE ir_filters
 SET domain = '[(''state'', ''in'', [''draft'', ''confirm''])]',
 name = 'En brouillon ou en cours'
 WHERE name = 'En brouillon'
 and model_id = 'stock.inventory';
+
+-- fix access right for creating customer from Point Of Sale
+INSERT INTO res_company_users_rel
+(SELECT 
+    rc.id as cid,
+    4 as user_id
+FROM res_company rc
+WHERE rc.id not in (select cid from res_company_users_rel where user_id = 4));
