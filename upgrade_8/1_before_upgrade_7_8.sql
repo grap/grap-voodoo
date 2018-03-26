@@ -81,6 +81,22 @@ WHERE product_tmpl_id in (
     FROM product_template
     WHERE image is not null);
 
+-- FAST CREATION - intercompany_trade_account
+ALTER TABLE account_invoice
+ADD COLUMN intercompany_trade bool DEFAULT False;
+
+UPDATE account_invoice ai
+SET intercompany_trade = rp.intercompany_trade
+FROM res_partner rp
+WHERE ai.partner_id = rp.id;
+
+ALTER TABLE account_invoice_line
+ADD COLUMN intercompany_trade bool DEFAULT False;
+
+UPDATE account_invoice_line ail
+SET intercompany_trade = ai.intercompany_trade
+FROM account_invoice ai
+WHERE ail.invoice_id = ai.id;
 
 -- ----------------------------------------------------------------------------
 -- XML ID Part - Move from module to another
