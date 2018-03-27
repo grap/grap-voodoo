@@ -65,7 +65,7 @@ ALTER TABLE product_template
 ADD COLUMN theoretical_difference NUMERIC DEFAULT 0.0;
 
 ALTER TABLE product_template
-ADD COLUMN margin_state CHAR DEFAULT 'ok';
+ADD COLUMN margin_state VARCHAR DEFAULT 'ok';
 
 -- FAST CREATION - product_print_category
 ALTER TABLE product_template
