@@ -25,6 +25,7 @@ parser.add_option(
     "4: 'Uninstall Obsolete Modules' Step\n"
     "5: 'Update All with OCB' (2) Step\n"
     "6: 'ORM operation' Step\n")
+    "7: 'Update All' Step\n")
 parser.add_option(
     "-d", "--database", dest="database",
     help="Database to use:\n"
@@ -127,6 +128,11 @@ def run_step(step, database, backup_step):
             _log("ERROR during the execution", e)
         finally:
             kill_process(proc)
+
+    elif step == 7:
+        # Update With OCB
+        set_upgrade_mode(False)
+        update_instance(database, 'all', target_log_level)
 
     # Clean Database
     clean_database(database, step)

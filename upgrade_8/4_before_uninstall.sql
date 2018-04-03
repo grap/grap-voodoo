@@ -28,6 +28,17 @@ FROM res_company rc
 WHERE pc.company_id = rc.id
 AND rc.code = 'PZI';
 
+
+-- INITIALIZATION : pos_product_price_to_weight
+UPDATE pos_config SET barcode_price_to_weight = '02xxxxxNNNDD'
+WHERE pos_config.company_id in (select id from res_company where code in ('HAL', 'LOC'));
+
+
+-- INITIALIZATION : pos_payment_terminal
+UPDATE account_journal set payment_mode = 'card'
+WHERE name='Carte Bancaire';
+
+
 -- INITIALIZATION : product_uom_use_type
 UPDATE product_uom
 SET use_type = 'purchase';
@@ -108,4 +119,7 @@ AND pp.product_tmpl_id = pt.id
 AND rc.print_category_id IS NOT null
 AND pp.pricetag_state != '3';
 
-
+-- INITIALIZATION : recurruring_consignment
+UPDATE product_template
+SET is_consignment_commission =True
+WHERE name ilike '%ommission sur d%' ;

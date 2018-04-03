@@ -30,6 +30,7 @@ STEP_DICT = {
     4: {'name': 'uninstall', 'backup_db': False, 'clean_after': True},
     5: {'name': 'update_2', 'backup_db': False, 'clean_after': True},
     6: {'name': 'orm_operation', 'backup_db': True, 'clean_after': True},
+    7: {'name': 'last_update_all', 'backup_db': False, 'clean_after': False},
 }
 
 
