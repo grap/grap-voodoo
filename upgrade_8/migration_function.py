@@ -24,12 +24,12 @@ ODOO_UPDATE_SCRIPT = "../bin/start_openerp --stop-after-init"\
 ODOO_RUN_SCRIPT = "../bin/start_openerp --log-level {log_level} --debug"
 
 STEP_DICT = {
-    1: {'name': 'upgrade_7_8', 'backup_db': True, 'clean_after': True},
+    1: {'name': 'upgrade_7_8', 'backup_db': False, 'clean_after': True},
     2: {'name': 'update', 'backup_db': True, 'clean_after': True},
     3: {'name': 'install', 'backup_db': False, 'clean_after': True},
     4: {'name': 'uninstall', 'backup_db': False, 'clean_after': True},
     5: {'name': 'update_2', 'backup_db': False, 'clean_after': True},
-    6: {'name': 'orm_operation', 'backup_db': True, 'clean_after': True},
+    6: {'name': 'orm_operation', 'backup_db': False, 'clean_after': True},
     7: {'name': 'last_update_all', 'backup_db': False, 'clean_after': False},
 }
 
