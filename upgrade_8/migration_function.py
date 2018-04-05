@@ -29,7 +29,7 @@ STEP_DICT = {
     3: {'name': 'install', 'backup_db': False, 'clean_after': True},
     4: {'name': 'uninstall', 'backup_db': False, 'clean_after': True},
     5: {'name': 'update_2', 'backup_db': False, 'clean_after': True},
-    6: {'name': 'orm_operation', 'backup_db': False, 'clean_after': True},
+    6: {'name': 'orm_operation', 'backup_db': True, 'clean_after': True},
     7: {'name': 'last_update_all', 'backup_db': False, 'clean_after': False},
 }
 
@@ -328,11 +328,16 @@ def uninstall_modules(database, module_list):
 
 
 def create_inventories(database):
-    move_fields = 'product_id', 'product_uom', 'product_qty'
+#    move_fields = 'product_id', 'product_uom', 'product_qty'
+    # <TRY> auto connection
+    move_fields = 'product_id', 'product_uom_id', 'product_qty'
 
     # Connect to old database and new database
+#    old_openerp = _connect_instance(
+#        ODOO_EXTERNAL_URL, ODOO_EXTERNAL_DATABASE, ODOO_USER, ODOO_PASSWORD)
+    # <TRY> auto connection
     old_openerp = _connect_instance(
-        ODOO_EXTERNAL_URL, ODOO_EXTERNAL_DATABASE, ODOO_USER, ODOO_PASSWORD)
+        ODOO_LOCAL_URL, database, ODOO_USER, ODOO_PASSWORD)
 
     # Load companies
     company_ids = old_openerp.ResCompany.search([
@@ -457,7 +462,9 @@ def create_inventories(database):
                 line_val = {
                     'partner_id': False,
                     'product_id': product_data['product_id'][0],
-                    'product_uom_id': product_data['product_uom'][0],
+#                    'product_uom_id': product_data['product_uom'][0],
+                    # <TRY> auto connection
+                    'product_uom_id': product_data['product_uom_id'][0],
                     'prod_lot_id': False,
                     'package_id': False,
                     'product_qty': product_data['product_qty'],
