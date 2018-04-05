@@ -24,7 +24,7 @@ parser.add_option(
     "3: 'Install New Modules' Step\n"
     "4: 'Uninstall Obsolete Modules' Step\n"
     "5: 'Update All with OCB' (2) Step\n"
-    "6: 'ORM operation' Step\n")
+    "6: 'ORM operation' Step\n"
     "7: 'Update All' Step\n")
 parser.add_option(
     "-d", "--database", dest="database",
