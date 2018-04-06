@@ -10,3 +10,8 @@ WHERE po.company_id = rc.id
 AND spt.company_id = rc.id
 AND spt.code = 'incoming'
 AND spt.active = True;
+
+UPDATE ir_config_parameter
+SET value = 'https://erp.grap.coop'
+WHERE key = 'web.base.url'
+AND value != 'https://erp.grap.coop';
