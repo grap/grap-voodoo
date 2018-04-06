@@ -328,9 +328,7 @@ def uninstall_modules(database, module_list):
 
 
 def create_inventories(database):
-#    move_fields = 'product_id', 'product_uom', 'product_qty'
-    # <TRY> auto connection
-    move_fields = 'product_id', 'product_uom_id', 'product_qty'
+    move_fields = 'product_id', 'product_uom', 'product_qty'
 
     # Connect to old database and new database
 #    old_openerp = _connect_instance(
@@ -462,9 +460,7 @@ def create_inventories(database):
                 line_val = {
                     'partner_id': False,
                     'product_id': product_data['product_id'][0],
-#                    'product_uom_id': product_data['product_uom'][0],
-                    # <TRY> auto connection
-                    'product_uom_id': product_data['product_uom_id'][0],
+                    'product_uom_id': product_data['product_uom'][0],
                     'prod_lot_id': False,
                     'package_id': False,
                     'product_qty': product_data['product_qty'],
