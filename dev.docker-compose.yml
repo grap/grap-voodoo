@@ -25,6 +25,7 @@ services:
     volumes:
     - .:/workspace
     - .db/socket/:/var/run/postgresql/
+    - /bin/ping:/bin/ping
     - /opt/grap_dev/backup/GRP/:/workspace/backup
     - /home/${USER}/.voodoo/shared:/home/${USER}/.voodoo/shared
 version: '2'
