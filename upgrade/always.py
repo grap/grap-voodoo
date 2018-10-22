@@ -86,8 +86,37 @@ def run(session, logger):
     # lang.active = False
     # lang.unlink()
 
-    # <TODO>
-    # configure :  multi_search_product
-    # configure :  multi_search_partner
-    # Call clean database
-    # </TODO>
+    # Set multi_search_product
+    # setting = env['base.config.settings'].create({
+    #     'multi_search_product_separator': ':',
+    #     'multi_search_partner_separator': ':',
+    # })
+    # setting.execute()
+
+    # clean obsolete models
+    try:
+        wizard = env['cleanup.purge.wizard.model'].create({})
+        wizard.purge_all()
+    except:
+        pass
+
+    try:
+        wizard = env['cleanup.purge.wizard.table'].create({})
+        wizard.purge_all()
+    except:
+        pass
+
+    try:
+        wizard = env['cleanup.purge.wizard.column'].create({})
+        for line in wizard.purge_line_ids:
+            if 'x_bi_sql_view' in line.model_id.model:
+                pass
+            elif line.name in [
+                    'openupgrade_legacy_8_0_account_id',
+                    'openupgrade_legacy_8_0_prodlot_id',
+                    'openupgrade_legacy_8_0_tracking_id']:
+                pass
+            else:
+                line.purge()
+    except:
+        pass
