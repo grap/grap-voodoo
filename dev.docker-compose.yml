@@ -1,7 +1,7 @@
 networks:
   default:
     external:
-      name: vd
+      name: dy
 services:
   db:
     environment:
@@ -16,9 +16,9 @@ services:
     - PYTHONDONTWRITEBYTECODE=True
     - USERMAP_UID=1000
     - USERMAP_GID=1000
-    - VIRTUAL_HOST=grap8-instance.vd
+    - VIRTUAL_HOST=instance_grap_8_docky.dy
     - VIRTUAL_PORT=8069
-    - MAINTAINER_QUALITY_TOOLS=/home/${USER}/.voodoo/shared/maintainer_quality_tools
+    - MAINTAINER_QUALITY_TOOLS=/home/${USER}/.docky/shared/maintainer_quality_tools
     image: akretion/voodoo:latest
     links:
     - db
@@ -27,5 +27,5 @@ services:
     - .db/socket/:/var/run/postgresql/
     - /bin/ping:/bin/ping
     - /opt/grap_dev/backup/GRP/:/workspace/backup
-    - /home/${USER}/.voodoo/shared:/home/${USER}/.voodoo/shared
+    - /home/sylvain/.voodoo/shared:/home/sylvain/.voodoo/shared
 version: '2'

@@ -7,6 +7,7 @@ upgrade_8/zz_*
 buildout.current.cfg
 odoo_bootstrap_anybox.py
 test_multiprocess.py
+upgrade.log
 
 # sphinx build directories
 _build/
