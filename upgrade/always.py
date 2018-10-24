@@ -8,6 +8,7 @@ INSTALL = [
     'multi_search_product',
     'multi_search_partner',
     'product_category_product_qty',
+    'mobile_app_purchase',
 ]
 
 UPDATE = [
@@ -59,39 +60,60 @@ def handle_field_renaming(env, logger, model_name, old_name, new_name):
 
 
 def run(session, logger):
-    # if INSTALL:
-    #     session.install_modules(INSTALL)
-    # if UPDATE:
-    #     session.update_modules(UPDATE)
-
-    # uninstall(session, ['account_invoice_pricelist_sale_stock'])
-    # uninstall(session, ['product_improved_search'])
-    # uninstall(session, ['product_category_improve'])
+    if INSTALL:
+        session.install_modules(INSTALL)
+    if UPDATE:
+        session.update_modules(UPDATE)
 
     # Extra Operation
     env = Environment(session.cr, 1, {})
+    ResCompany = env['res.company']
+
+    # move settings from scan_to_purchase into mobile_app_purchase
+    companies = ResCompany.search([])
+    for company in companies:
+        product_fields = company.scan_purchase_product_fields_ids
+        supplierinfo_fields = company.scan_purchase_supplierinfo_fields_ids
+
+        vals = {}
+        if product_fields:
+            vals.update({
+                'mobile_purchase_product_field_ids': [
+                    [6, False, [product_fields.ids]]]
+            })
+        if supplierinfo_fields:
+            vals.update({
+                'mobile_purchase_supplierinfo_field_ids': [
+                    [6, False, [supplierinfo_fields.ids]]]
+            })
+
+        if vals:
+            logger.info("migrating purchase configuration for %s" % (
+                company.name))
+            company.with_context(
+                company_id=company.id, force_company=company.id).write(vals)
 
     # refactoring of pos_invoicing
-    # handle_field_renaming(
-    #     env, logger, 'account.invoice', 'forbid_payment',
-    #     'pos_pending_payment')
+    handle_field_renaming(
+        env, logger, 'account.invoice', 'forbid_payment',
+        'pos_pending_payment')
 
     # refactoring of account_export_ebp
-    # handle_field_renaming(
-    #     env, logger, 'account.move', 'exported_ebp_id',
-    #     'ebp_export_id')
+    handle_field_renaming(
+        env, logger, 'account.move', 'exported_ebp_id',
+        'ebp_export_id')
 
     # Uninstall Italian language
-    # lang = env['res.lang'].search([('code', '=', 'it_IT')])
-    # lang.active = False
-    # lang.unlink()
+    lang = env['res.lang'].search([('code', '=', 'it_IT')])
+    lang.active = False
+    lang.unlink()
 
     # Set multi_search_product
-    # setting = env['base.config.settings'].create({
-    #     'multi_search_product_separator': ':',
-    #     'multi_search_partner_separator': ':',
-    # })
-    # setting.execute()
+    setting = env['base.config.settings'].create({
+        'multi_search_product_separator': ':',
+        'multi_search_partner_separator': ':',
+    })
+    setting.execute()
 
     # clean obsolete models
     try:
@@ -120,3 +142,8 @@ def run(session, logger):
                 line.purge()
     except:
         pass
+
+    uninstall(session, ['account_invoice_pricelist_sale_stock'])
+    uninstall(session, ['product_improved_search'])
+    uninstall(session, ['product_category_improve'])
+    uninstall(session, ['scan_to_purchase'])
