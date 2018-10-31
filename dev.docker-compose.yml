@@ -16,7 +16,7 @@ services:
     - PYTHONDONTWRITEBYTECODE=True
     - USERMAP_UID=1000
     - USERMAP_GID=1000
-    - VIRTUAL_HOST=instance_grap_8_docky.dy
+    - VIRTUAL_HOST=instance_grap_8.dy
     - VIRTUAL_PORT=8069
     - MAINTAINER_QUALITY_TOOLS=/home/${USER}/.docky/shared/maintainer_quality_tools
     image: akretion/voodoo:latest

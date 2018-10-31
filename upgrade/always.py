@@ -3,24 +3,26 @@ from openerp.api import Environment
 
 
 INSTALL = [
-    'product_analytic',
     'account_invoice_pricelist_stock_account',
-    'multi_search_product',
-    'multi_search_partner',
+    'product_analytic',
     'product_category_product_qty',
+    'multi_search_partner',
+    'multi_search_product',
 ]
 
 UPDATE = [
+    'account_export_ebp',
     'account_invoice_pricelist',
+    'account_move_change_number',
     'product_margin_classification',
+    'invoice_verified_state',
+    'pos_invoicing',
+    'product_categ_search_complete_name',
     'product_standard_price_tax_included',
+    'sale_line_change_custom',
     'stock_picking_quick_edit',
     'stock_picking_mass_change',
-    'pos_invoicing',
-    'account_export_ebp',
-    'product_categ_search_complete_name',
-    'account_move_change_number',
-    'invoice_verified_state',
+    'recurring_consignment',
 ]
 
 
@@ -59,39 +61,38 @@ def handle_field_renaming(env, logger, model_name, old_name, new_name):
 
 
 def run(session, logger):
-    # if INSTALL:
-    #     session.install_modules(INSTALL)
-    # if UPDATE:
-    #     session.update_modules(UPDATE)
-
-    # uninstall(session, ['account_invoice_pricelist_sale_stock'])
-    # uninstall(session, ['product_improved_search'])
-    # uninstall(session, ['product_category_improve'])
-
-    # Extra Operation
     env = Environment(session.cr, 1, {})
 
+    if INSTALL:
+        session.install_modules(INSTALL)
+    if UPDATE:
+        session.update_modules(UPDATE)
+
+    uninstall(session, ['account_invoice_pricelist_sale_stock'])
+    uninstall(session, ['product_improved_search'])
+    uninstall(session, ['product_category_improve'])
+
     # refactoring of pos_invoicing
-    # handle_field_renaming(
-    #     env, logger, 'account.invoice', 'forbid_payment',
-    #     'pos_pending_payment')
+    handle_field_renaming(
+        env, logger, 'account.invoice', 'forbid_payment',
+        'pos_pending_payment')
 
     # refactoring of account_export_ebp
-    # handle_field_renaming(
-    #     env, logger, 'account.move', 'exported_ebp_id',
-    #     'ebp_export_id')
+    handle_field_renaming(
+        env, logger, 'account.move', 'exported_ebp_id',
+        'ebp_export_id')
 
     # Uninstall Italian language
-    # lang = env['res.lang'].search([('code', '=', 'it_IT')])
-    # lang.active = False
-    # lang.unlink()
+    lang = env['res.lang'].search([('code', '=', 'it_IT')])
+    lang.active = False
+    lang.unlink()
 
     # Set multi_search_product
-    # setting = env['base.config.settings'].create({
-    #     'multi_search_product_separator': ':',
-    #     'multi_search_partner_separator': ':',
-    # })
-    # setting.execute()
+    setting = env['base.config.settings'].create({
+        'multi_search_product_separator': ':',
+        'multi_search_partner_separator': ':',
+    })
+    setting.execute()
 
     # clean obsolete models
     try:
@@ -99,6 +100,15 @@ def run(session, logger):
         wizard.purge_all()
     except:
         pass
+
+    # fix consignors
+    products = env['product.product'].search(
+        [('consignor_partner_id', '!=', False)])
+    for product in products:
+        if len(product.seller_ids) != 1:
+            logger.info("UPGRADE: Fix sellers ids for #%d #%d - %s" % (
+                product.company_id.id, product.id, product.name))
+            product.onchange_consignor_partner_id_variant()
 
     try:
         wizard = env['cleanup.purge.wizard.table'].create({})
