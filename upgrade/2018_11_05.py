@@ -61,8 +61,6 @@ def handle_field_renaming(env, logger, model_name, old_name, new_name):
 
 
 def run(session, logger):
-    env = Environment(session.cr, 1, {})
-
     if INSTALL:
         session.install_modules(INSTALL)
     if UPDATE:
@@ -70,9 +68,12 @@ def run(session, logger):
 
     uninstall(session, ['account_invoice_pricelist_sale_stock'])
     uninstall(session, ['product_improved_search'])
-    uninstall(session, ['product_category_improve'])
+    # FIXME Don't know why
+    # uninstall(session, ['product_category_improve'])
 
     # refactoring of pos_invoicing
+    env = Environment(session.cr, 1, {})
+
     handle_field_renaming(
         env, logger, 'account.invoice', 'forbid_payment',
         'pos_pending_payment')
@@ -94,21 +95,22 @@ def run(session, logger):
     })
     setting.execute()
 
+    # FIXME Don't know why
+    # fix consignors
+    # products = env['product.product'].search(
+    #     [('consignor_partner_id', '!=', False)])
+    # for product in products:
+    #     if len(product.seller_ids) != 1:
+    #         logger.info("UPGRADE: Fix sellers ids for #%d #%d - %s" % (
+    #             product.company_id.id, product.id, product.name))
+    #         product.onchange_consignor_partner_id_variant()
+
     # clean obsolete models
     try:
         wizard = env['cleanup.purge.wizard.model'].create({})
         wizard.purge_all()
     except:
         pass
-
-    # fix consignors
-    products = env['product.product'].search(
-        [('consignor_partner_id', '!=', False)])
-    for product in products:
-        if len(product.seller_ids) != 1:
-            logger.info("UPGRADE: Fix sellers ids for #%d #%d - %s" % (
-                product.company_id.id, product.id, product.name))
-            product.onchange_consignor_partner_id_variant()
 
     try:
         wizard = env['cleanup.purge.wizard.table'].create({})
