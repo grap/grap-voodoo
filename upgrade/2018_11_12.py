@@ -74,26 +74,27 @@ def run(session, logger):
     # refactoring of pos_invoicing
     env = Environment(session.cr, 1, {})
 
-    handle_field_renaming(
-        env, logger, 'account.invoice', 'forbid_payment',
-        'pos_pending_payment')
+    # handle_field_renaming(
+    #     env, logger, 'account.invoice', 'forbid_payment',
+    #     'pos_pending_payment')
 
-    # refactoring of account_export_ebp
-    handle_field_renaming(
-        env, logger, 'account.move', 'exported_ebp_id',
-        'ebp_export_id')
+    # # refactoring of account_export_ebp
+    # handle_field_renaming(
+    #     env, logger, 'account.move', 'exported_ebp_id',
+    #     'ebp_export_id')
 
-    # Uninstall Italian language
-    lang = env['res.lang'].search([('code', '=', 'it_IT')])
-    lang.active = False
-    lang.unlink()
+    # # Uninstall Italian language
+    # lang = env['res.lang'].search([('code', '=', 'it_IT')])
+    # lang.active = False
+    # lang.unlink()
 
-    # Set multi_search_product
-    setting = env['base.config.settings'].create({
-        'multi_search_product_separator': ':',
-        'multi_search_partner_separator': ':',
-    })
-    setting.execute()
+    # FIXME Don't know why
+    # # Set multi_search_product
+    # setting = env['base.config.settings'].create({
+    #     'multi_search_product_separator': ':',
+    #     'multi_search_partner_separator': ':',
+    # })
+    # setting.execute()
 
     # FIXME Don't know why
     # fix consignors
