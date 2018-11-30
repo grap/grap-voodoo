@@ -3,10 +3,14 @@ from openerp.api import Environment
 
 
 INSTALL = [
+    'mobile_app_purchase',
+    'base_company_legal_info',
 ]
 
 UPDATE = [
     'grap_l10n_fr',
+    'stock_picking_mass_assign',
+    'barcodes_generator_abstract',
 ]
 
 
